@@ -7,8 +7,6 @@ import com.example.api2024.repository.ProjetoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-
 @Service
 public class ProjetoService {
 
@@ -18,6 +16,7 @@ public class ProjetoService {
     @Autowired
     private AdmService admService;
 
+    @SuppressWarnings("unused")
     public void cadastrarProjeto(ProjetoDto projetoDto) throws Exception {
         Projeto projeto = projetoDto.toEntity();
 

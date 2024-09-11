@@ -1,4 +1,4 @@
-package com.example.api2024.jwt;
+package com.example.api2024.configCors;
 
 import java.io.IOException;
 import java.util.HashMap;

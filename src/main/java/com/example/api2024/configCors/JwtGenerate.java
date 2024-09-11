@@ -1,14 +1,13 @@
-package com.example.api2024.jwt;
+package com.example.api2024.configCors;
 
 import java.security.Key;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import com.example.api2024.service.AdmDetails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import com.example.api2024.adapt.AdmDetails;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -27,14 +26,17 @@ public class JwtGenerate {
     @Value("${jwt.expiration}")
     private Long expirationTime;
 
+    @SuppressWarnings("deprecation")
     public String AdmTokenDetailsImpl(AdmDetails tokenDetail) {
         return Jwts.builder().setSubject(tokenDetail.getUsername()).setIssuedAt(new Date()).setExpiration(new Date(new Date().getTime() + expirationTime)).signWith(signinKey(), SignatureAlgorithm.HS512).compact();}
 
     public Key signinKey() { SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         return key;}
 
+    @SuppressWarnings("deprecation")
     public String UsernameToken(String token) {return Jwts.parser().setSigningKey(signinKey()).build().parseClaimsJws(token).getBody().getSubject();}
 
+    @SuppressWarnings("deprecation")
     public boolean JwtToken(String authToken) {
         try { Jwts.parser().setSigningKey(signinKey()).build().parseClaimsJws(authToken);
             return true;}

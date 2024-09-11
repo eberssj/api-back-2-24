@@ -1,26 +1,25 @@
-package com.example.api2024.adapt;
+package com.example.api2024.service;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
-public class AdmDetails implements UserDetails {
+public class AdmDetails implements UserDetails{
     private static final long serialVersionUID = 1L;
 
     private String email;
     private String senha;
-    private Collection<? extends GrantedAuthority> tipo;
 
-    public AdmDetails(String email, String senha, Collection<? extends GrantedAuthority> tipo) {
+    public AdmDetails(String email, String senha) {
         this.email = email;
         this.senha = senha;
-        this.tipo = tipo;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.tipo;
+        return List.of();
     }
 
     @Override
@@ -47,4 +46,10 @@ public class AdmDetails implements UserDetails {
     public boolean isCredentialsNonExpired() {
         return true;
     }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
+
 }
