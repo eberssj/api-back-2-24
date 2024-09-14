@@ -1,3 +1,4 @@
+//Verificação de autenticação	- EntryPoint.java - Mensagem de erro de autenticação, caso o usuário não esteja autenticado
 package com.example.api2024.configCors;
 
 import java.io.IOException;
