@@ -1,3 +1,4 @@
+// Function: Generate JWT token for user authentication
 package com.example.api2024.configCors;
 
 import java.security.Key;
