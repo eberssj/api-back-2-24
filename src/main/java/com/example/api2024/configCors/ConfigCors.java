@@ -1,3 +1,4 @@
+// Contém a configuração do CORS para permitir que o front-end acesse a API.
 package com.example.api2024.configCors;
 
 import org.springframework.context.annotation.Configuration;
