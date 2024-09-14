@@ -1,3 +1,4 @@
+// Aplicação do filtro de autenticação do token JWT
 package com.example.api2024.configCors;
 
 import com.example.api2024.service.AdmDetailsService;
