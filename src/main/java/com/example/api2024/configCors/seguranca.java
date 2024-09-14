@@ -1,3 +1,4 @@
+// Adicionando configurações de segurança para a aplicação, como a criptografia de senhas, a configuração de permissões e a criação de tokens de autenticação.
 package com.example.api2024.configCors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class seguranca {
         return new BCryptPasswordEncoder();
     }
 
-    private static final String[] ALLOWED_ORIGINS = { "/projeto/cadastrar", "/projeto/listar"};
+    private static final String[] ALLOWED_ORIGINS = { "/projeto/cadastrar", "/projeto/listar", "/login"};
 
     @Bean
     public AuthToken authToken(){
