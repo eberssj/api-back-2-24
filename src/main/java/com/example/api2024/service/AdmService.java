@@ -20,4 +20,8 @@ public class AdmService {
 
         return adm;
     }
+
+    public Adm buscarPorEmail (String email) throws Exception {
+        return admRepository.findByEmail(email).orElseThrow(() -> new Exception("Adm não encontrado"));
+    }
 }
