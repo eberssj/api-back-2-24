@@ -6,4 +6,4 @@ VALUES
 INSERT INTO adm
 (nome, email, cpf, telefone, senha, tipo, data_cadastro, ativo)
 VALUES
-('João Silva', 'joao.silva@example.com', '123.456.789-00', '123456789', 'senhaSegura123', 'Administrador', '2024-09-10', 'true');
+('ADM', 'adm@adm.com', '123.456.789-00', '123456789', '$2a$12$s7jp2GAlPRxSi.bGaqfJb.SntH0HVJoY4NWQ4hD1A9pTWHspPS6IG', '1', '2024-09-10', 'true');
