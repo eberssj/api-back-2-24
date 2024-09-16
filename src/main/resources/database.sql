@@ -8,6 +8,6 @@ INSERT INTO adm
 VALUES
 ('ADM', 'adm@adm.com', '123.456.789-00', '123456789', '$2a$12$dvhejJyEjT5piwIsKEibvu4qW6h705iAIrWYOE83/0MZzS7ia7Y8O', '1', '2024-09-10', 'true');
 
-// Login:
-// E-mail: adm@adm.com
-// Password: adm
+-- Login:
+-- E-mail: adm@adm.com
+-- Password: adm
