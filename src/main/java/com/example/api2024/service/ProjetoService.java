@@ -1,11 +1,13 @@
 package com.example.api2024.service;
 
 import com.example.api2024.dto.ProjetoDto;
-import com.example.api2024.entity.Adm;
 import com.example.api2024.entity.Projeto;
 import com.example.api2024.repository.ProjetoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Service
 public class ProjetoService {
@@ -13,13 +15,9 @@ public class ProjetoService {
     @Autowired
     private ProjetoRepository projetoRepository;
 
-    @Autowired
-    private AdmService admService;
-
-    @SuppressWarnings("unused")
-    public void cadastrarProjeto(ProjetoDto projetoDto) throws Exception {
-        Projeto projeto = projetoDto.toEntity();
-
+    public void cadastrarProjeto(ProjetoDto projetoDto, MultipartFile propostas, MultipartFile contratos, MultipartFile artigos) throws IOException {
+        // Criação de entidade do projeto
+        Projeto projeto = new Projeto();
         projeto.setReferenciaProjeto(projetoDto.getReferenciaProjeto());
         projeto.setEmpresa(projetoDto.getEmpresa());
         projeto.setObjeto(projetoDto.getObjeto());
@@ -28,13 +26,25 @@ public class ProjetoService {
         projeto.setValor(projetoDto.getValor());
         projeto.setDataInicio(projetoDto.getDataInicio());
         projeto.setDataTermino(projetoDto.getDataTermino());
-        projeto.setPropostaRelatorios(projetoDto.getPropostaRelatorios());
-        projeto.setContratos(projetoDto.getContratos());
-        projeto.setArtigos(projetoDto.getArtigos());
         projeto.setSituacao(projetoDto.getSituacao());
 
-        Adm adm = admService.buscarAdm(projetoDto.getIdAdm());
+        // Aqui você pode salvar os arquivos no sistema de arquivos ou outro serviço.
+        if (propostas != null && !propostas.isEmpty()) {
+            // Lógica para armazenar o arquivo de propostas
+            System.out.println("Salvando arquivo de propostas: " + propostas.getOriginalFilename());
+        }
 
+        if (contratos != null && !contratos.isEmpty()) {
+            // Lógica para armazenar o arquivo de contratos
+            System.out.println("Salvando arquivo de contratos: " + contratos.getOriginalFilename());
+        }
+
+        if (artigos != null && !artigos.isEmpty()) {
+            // Lógica para armazenar o arquivo de artigos
+            System.out.println("Salvando arquivo de artigos: " + artigos.getOriginalFilename());
+        }
+
+        // Salvar o projeto no banco de dados
         projetoRepository.save(projeto);
     }
 }

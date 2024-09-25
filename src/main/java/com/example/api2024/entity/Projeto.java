@@ -2,13 +2,13 @@ package com.example.api2024.entity;
 
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -48,14 +48,18 @@ public class Projeto {
     @DateTimeFormat(pattern = "dd-MM-yyyy")
     private LocalDate dataTermino;
 
+    @Lob
     @Column
-    private String propostaRelatorios;
+    private byte[] propostaRelatorios;
 
+    @Lob
     @Column
-    private String contratos;
+    private byte[] contratos;
 
+    @Lob
     @Column
-    private String artigos;
+    private byte[] artigos;
+
 
     @Column
     private double situacao;
