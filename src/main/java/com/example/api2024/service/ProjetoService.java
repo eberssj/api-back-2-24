@@ -32,8 +32,7 @@ public class ProjetoService {
         projeto.setContratos(projetoDto.getContratos());
         projeto.setArtigos(projetoDto.getArtigos());
         projeto.setSituacao(projetoDto.getSituacao());
-
-        Adm adm = admService.buscarAdm(projetoDto.getIdAdm());
+        projeto.setAdministrador(admService.buscarAdm(projetoDto.getIdAdm()));
 
         projetoRepository.save(projeto);
     }
