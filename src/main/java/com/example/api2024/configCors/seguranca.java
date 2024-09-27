@@ -28,7 +28,6 @@ public class seguranca {
 
     // Adicionando rotas liberadas para acesso público
     private static final String[] ALLOWED_ORIGINS = {
-            "/projeto/cadastrar",
             "/projeto/listar",
             "/login",
             "/arquivos/projeto/**",

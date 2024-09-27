@@ -26,4 +26,9 @@ public class AdmController {
     public String getTipo(@PathVariable String email) throws Exception {
         return admRepository.findByEmail(email).orElseThrow(() -> new Exception("Adm não encontrado")).getTipo();
     }
+
+    @GetMapping("/{email}/infoAdm")
+    public Adm getInfoAdm(@PathVariable String email) throws Exception {
+        return admRepository.findByEmail(email).orElseThrow(() -> new Exception("Adm não encontrado"));
+    }
 }

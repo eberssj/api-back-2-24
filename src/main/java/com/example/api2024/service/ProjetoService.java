@@ -32,6 +32,7 @@ public class ProjetoService {
         projeto.setDataInicio(projetoDto.getDataInicio());
         projeto.setDataTermino(projetoDto.getDataTermino());
         projeto.setSituacao(projetoDto.getSituacao());
+        projeto.setAdm(projetoDto.getAdm());
 
         projetoRepository.save(projeto);
 

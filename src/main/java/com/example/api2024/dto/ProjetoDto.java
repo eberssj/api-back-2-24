@@ -1,5 +1,7 @@
 package com.example.api2024.dto;
 
+import com.example.api2024.entity.Adm;
+
 import java.time.LocalDate;
 
 public class ProjetoDto {
@@ -12,6 +14,7 @@ public class ProjetoDto {
     private LocalDate dataInicio;
     private LocalDate dataTermino;
     private Double situacao;
+    private Adm adm;
 
     // Getters e Setters
     public String getReferenciaProjeto() {
@@ -84,5 +87,13 @@ public class ProjetoDto {
 
     public void setSituacao(Double situacao) {
         this.situacao = situacao;
+    }
+
+    public Adm getAdm() {
+        return adm;
+    }
+
+    public void setAdm(Adm adm) {
+        this.adm = adm;
     }
 }

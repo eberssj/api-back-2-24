@@ -1,12 +1,9 @@
 package com.example.api2024.entity;
 
 import java.time.LocalDate;
+
+import jakarta.persistence.*;
 import org.springframework.format.annotation.DateTimeFormat;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -48,4 +45,7 @@ public class Projeto {
     @Column
     private double situacao;
 
+    @ManyToOne
+    @JoinColumn(name = "idAdm")
+    private Adm adm;
 }
