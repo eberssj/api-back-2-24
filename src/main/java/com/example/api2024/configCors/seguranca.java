@@ -1,4 +1,3 @@
-// Adicionando configurações de segurança para a aplicação, como a criptografia de senhas, a configuração de permissões e a criação de tokens de autenticação.
 package com.example.api2024.configCors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,17 +26,30 @@ public class seguranca {
         return new BCryptPasswordEncoder();
     }
 
-    private static final String[] ALLOWED_ORIGINS = { "/projeto/cadastrar", "/projeto/listar", "/login"};
+    // Adicionando rotas liberadas para acesso público
+    private static final String[] ALLOWED_ORIGINS = {
+            "/projeto/cadastrar",
+            "/projeto/listar",
+            "/login",
+            "/arquivos/projeto/**",
+            "/arquivos/download/**"
+    };
 
     @Bean
-    public AuthToken authToken(){
+    public AuthToken authToken() {
         return new AuthToken();
     }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.cors(Customizer.withDefaults());
-        http.csrf(csrf -> csrf.disable()).exceptionHandling(exception -> exception.authenticationEntryPoint(entryPoint)).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).authorizeHttpRequests(authorize -> authorize.requestMatchers(ALLOWED_ORIGINS).permitAll().anyRequest().authenticated());
+        http.cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(entryPoint))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(ALLOWED_ORIGINS).permitAll()
+                        .anyRequest().authenticated());
 
         http.addFilterBefore(authToken(), UsernamePasswordAuthenticationFilter.class);
 
@@ -48,5 +60,4 @@ public class seguranca {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-    
 }

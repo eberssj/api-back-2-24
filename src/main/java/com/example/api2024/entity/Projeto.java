@@ -7,9 +7,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -48,23 +45,7 @@ public class Projeto {
     @DateTimeFormat(pattern = "dd-MM-yyyy")
     private LocalDate dataTermino;
 
-    @Lob
-    @Column
-    private byte[] propostaRelatorios;
-
-    @Lob
-    @Column
-    private byte[] contratos;
-
-    @Lob
-    @Column
-    private byte[] artigos;
-
-
     @Column
     private double situacao;
 
-    @ManyToOne
-    @JoinColumn(name = "idAdm")
-    private Adm administrador;
 }

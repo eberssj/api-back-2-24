@@ -1,11 +1,15 @@
 package com.example.api2024.service;
 
 import com.example.api2024.dto.ProjetoDto;
-import com.example.api2024.entity.Adm;
+import com.example.api2024.entity.Arquivo;
 import com.example.api2024.entity.Projeto;
+import com.example.api2024.repository.ArquivoRepository;
 import com.example.api2024.repository.ProjetoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 public class ProjetoService {
@@ -14,12 +18,11 @@ public class ProjetoService {
     private ProjetoRepository projetoRepository;
 
     @Autowired
-    private AdmService admService;
+    private ArquivoRepository arquivoRepository;
 
-    @SuppressWarnings("unused")
-    public void cadastrarProjeto(ProjetoDto projetoDto) throws Exception {
-        Projeto projeto = projetoDto.toEntity();
-
+    // Método para cadastrar um novo projeto
+    public void cadastrarProjeto(ProjetoDto projetoDto, MultipartFile propostas, MultipartFile contratos, MultipartFile artigos) throws Exception {
+        Projeto projeto = new Projeto();
         projeto.setReferenciaProjeto(projetoDto.getReferenciaProjeto());
         projeto.setEmpresa(projetoDto.getEmpresa());
         projeto.setObjeto(projetoDto.getObjeto());
@@ -28,13 +31,31 @@ public class ProjetoService {
         projeto.setValor(projetoDto.getValor());
         projeto.setDataInicio(projetoDto.getDataInicio());
         projeto.setDataTermino(projetoDto.getDataTermino());
-        projeto.setPropostaRelatorios(projetoDto.getPropostaRelatorios());
-        projeto.setContratos(projetoDto.getContratos());
-        projeto.setArtigos(projetoDto.getArtigos());
         projeto.setSituacao(projetoDto.getSituacao());
 
-        Adm adm = admService.buscarAdm(projetoDto.getIdAdm());
-
         projetoRepository.save(projeto);
+
+        salvarArquivo(propostas, projeto, "Propostas");
+        salvarArquivo(contratos, projeto, "Contratos");
+        salvarArquivo(artigos, projeto, "Artigos");
+    }
+
+    // Método para salvar arquivos na tabela Arquivo
+    private void salvarArquivo(MultipartFile file, Projeto projeto, String tipoDocumento) throws Exception {
+        if (file != null && !file.isEmpty()) {
+            Arquivo arquivo = new Arquivo();
+            arquivo.setNomeArquivo(file.getOriginalFilename());
+            arquivo.setTipoArquivo(file.getContentType());
+            arquivo.setConteudo(file.getBytes());
+            arquivo.setTipoDocumento(tipoDocumento);
+            arquivo.setProjeto(projeto);
+
+            arquivoRepository.save(arquivo);
+        }
+    }
+
+    // Método para listar todos os projetos
+    public List<Projeto> listarProjetos() {
+        return projetoRepository.findAll();
     }
 }
