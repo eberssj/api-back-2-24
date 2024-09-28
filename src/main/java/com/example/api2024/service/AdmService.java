@@ -6,22 +6,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AdmService {
 
-    @Autowired
-    private static AdmRepository admRepository;
+    @Autowired // Injeta uma instância de AdmRepository
+    public AdmRepository admRepository;
 
-    public List<Adm> listarAdm() { return admRepository.findAll(); }
+    public Optional<Adm> buscarAdm(Long id) { // Método para buscar um administrador pelo ID
 
-    public static Adm buscarAdm(Long id) throws Exception {
-        Adm adm = admRepository.findById(id).orElseThrow(() -> new Exception("Adm não encontrado"));
-
-        return adm;
+        return admRepository.findById(id); // Retorna um Optional contendo o administrador encontrado ou vazio se não encontrado
     }
 
-    public Adm buscarPorEmail (String email) throws Exception {
-        return admRepository.findByEmail(email).orElseThrow(() -> new Exception("Adm não encontrado"));
+    public boolean existsByEmail(String email) { // Método para verificar se um administrador existe pelo email
+
+        return admRepository.existsByEmail(email); // Retorna true se o email existir, caso contrário, false
     }
 }
