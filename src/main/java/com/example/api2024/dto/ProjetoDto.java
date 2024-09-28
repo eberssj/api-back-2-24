@@ -13,8 +13,8 @@ public class ProjetoDto {
     private Double valor;
     private LocalDate dataInicio;
     private LocalDate dataTermino;
-    private Double situacao;
-    private Adm adm;
+    private String situacao;
+    private Long adm;
 
     // Getters e Setters
     public String getReferenciaProjeto() {
@@ -81,19 +81,19 @@ public class ProjetoDto {
         this.dataTermino = dataTermino;
     }
 
-    public Double getSituacao() {
+    public String getSituacao() {
         return situacao;
     }
 
-    public void setSituacao(Double situacao) {
+    public void setSituacao(String situacao) {
         this.situacao = situacao;
     }
 
-    public Adm getAdm() {
+    public Long getAdm() {
         return adm;
     }
 
-    public void setAdm(Adm adm) {
+    public void setAdm(Long adm) {
         this.adm = adm;
     }
 }
