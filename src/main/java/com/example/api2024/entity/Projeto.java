@@ -43,9 +43,9 @@ public class Projeto {
     private LocalDate dataTermino;
 
     @Column
-    private double situacao;
+    private String situacao;
 
     @ManyToOne
     @JoinColumn(name = "idAdm")
-    private Adm adm;
+    private Adm administrador;
 }
