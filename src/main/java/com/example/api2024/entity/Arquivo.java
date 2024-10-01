@@ -9,21 +9,25 @@ public class Arquivo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nomeArquivo;
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String nomeArquivo;  // Definido como TEXT no banco de dados
 
+    @Column(nullable = false)
     private String tipoArquivo;
 
     @Lob
     @Column(name = "conteudo", columnDefinition = "LONGBLOB")
     private byte[] conteudo;
 
+    @Column(nullable = false)
     private String tipoDocumento;
 
     @ManyToOne
-    @JoinColumn(name = "projeto_id")
+    @JoinColumn(name = "projeto_id", nullable = false)
     private Projeto projeto;
 
-    // Getters and Setters
+    // Getters e Setters
 
     public Long getId() {
         return id;

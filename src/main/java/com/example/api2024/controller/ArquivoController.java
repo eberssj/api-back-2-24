@@ -33,8 +33,12 @@ public class ArquivoController {
                 .orElseThrow(() -> new RuntimeException("Arquivo não encontrado"));
 
         String mimeType = arquivo.getTipoArquivo();
+
+        // Se o tipo MIME estiver vazio ou for "pdf", defina como application/pdf
         if (mimeType == null || mimeType.isEmpty()) {
-            mimeType = "application/octet-stream"; // fallback if MIME type is missing
+            mimeType = "application/pdf"; // ou "application/octet-stream" se preferir
+        } else if (mimeType.equalsIgnoreCase("pdf")) {
+            mimeType = "application/pdf"; // Certifique-se de que "pdf" é tratado como application/pdf
         }
 
         return ResponseEntity.ok()
@@ -42,4 +46,4 @@ public class ArquivoController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + arquivo.getNomeArquivo() + "\"")
                 .body(new ByteArrayResource(arquivo.getConteudo()));
     }
-}
+} // Certifique-se de que a classe está fechada corretamente aqui

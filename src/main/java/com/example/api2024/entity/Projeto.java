@@ -22,10 +22,12 @@ public class Projeto {
     @Column(nullable = false)
     private String empresa;
 
-    @Column
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String objeto;
 
-    @Column
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String descricao;
 
     @Column(nullable = false)
@@ -34,11 +36,11 @@ public class Projeto {
     @Column(nullable = false)
     private double valor;
 
-    @Column(nullable = false)
+
     @DateTimeFormat(pattern = "dd-MM-yyyy")
     private LocalDate dataInicio;
 
-    @Column(nullable = false)
+
     @DateTimeFormat(pattern = "dd-MM-yyyy")
     private LocalDate dataTermino;
 
