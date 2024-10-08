@@ -31,7 +31,8 @@ public class seguranca {
             "/projeto/listar",
             "/login",
             "/arquivos/projeto/**",
-            "/arquivos/download/**"
+            "/arquivos/download/**",
+            "/projeto/editar/**"
     };
 
     @Bean
