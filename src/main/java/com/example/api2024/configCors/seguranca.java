@@ -26,13 +26,11 @@ public class seguranca {
         return new BCryptPasswordEncoder();
     }
 
-    // Adicionando rotas liberadas para acesso público
     private static final String[] ALLOWED_ORIGINS = {
             "/projeto/listar",
             "/login",
             "/arquivos/projeto/**",
             "/arquivos/download/**",
-            "/projeto/editar/**"
     };
 
     @Bean
