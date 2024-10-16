@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/projeto")
+@CrossOrigin(origins = "http://localhost:3000") // Permite o frontend se conectar ao backend
 public class ProjetoController {
 
     @Autowired
@@ -29,11 +30,10 @@ public class ProjetoController {
             @RequestPart(value = "propostas", required = false) MultipartFile propostas,
             @RequestPart(value = "contratos", required = false) MultipartFile contratos,
             @RequestPart(value = "artigos", required = false) MultipartFile artigos) throws Exception {
-
         projetoService.cadastrarProjeto(projetoDto, propostas, contratos, artigos);
     }
 
-    // Endpoint para editar um projeto
+    // Endpoint para editar um projeto existente
     @PutMapping("/editar/{id}")
     public Projeto editarProjeto(
             @PathVariable Long id,
@@ -50,4 +50,3 @@ public class ProjetoController {
         projetoService.excluirProjeto(id);
     }
 }
-
