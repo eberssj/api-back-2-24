@@ -37,12 +37,12 @@ public class Projeto {
     private double valor;
 
 
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataInicio;
 
-
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataTermino;
+
 
     @Column
     private String situacao;
