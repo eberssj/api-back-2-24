@@ -8,6 +8,7 @@ import com.example.api2024.repository.ArquivoRepository;
 import com.example.api2024.repository.ProjetoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -27,9 +28,15 @@ public class ProjetoService {
     @Autowired
     private AdmService admService;
 
+    public Projeto buscarProjetoPorId(Long id) {
+        return projetoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Projeto não encontrado."));
+    }
+
     // Método para cadastrar um novo projeto
     public void cadastrarProjeto(ProjetoDto projetoDto, MultipartFile propostas, MultipartFile contratos, MultipartFile artigos) throws Exception {
         Projeto projeto = new Projeto();
+
         // Populando os dados do projeto
         projeto.setReferenciaProjeto(projetoDto.getReferenciaProjeto());
         projeto.setEmpresa(projetoDto.getEmpresa());
@@ -42,12 +49,9 @@ public class ProjetoService {
         projeto.setSituacao(projetoDto.getSituacao());
 
         // Verificação do administrador
-        Optional<Adm> admOptional = admService.buscarAdm(projetoDto.getAdm());
-        if (admOptional.isPresent()) {
-            projeto.setAdministrador(admOptional.get());
-        } else {
-            throw new Exception("Administrador não encontrado com ID: " + projetoDto.getAdm());
-        }
+        Adm administrador = admService.buscarAdm(projetoDto.getAdm())
+                .orElseThrow(() -> new RuntimeException("Administrador não encontrado com ID: " + projetoDto.getAdm()));
+        projeto.setAdm(administrador);
 
         // Salvando o projeto
         projetoRepository.save(projeto);
@@ -58,8 +62,13 @@ public class ProjetoService {
         salvarArquivo(artigos, projeto, "Artigos");
     }
 
+    // Método para listar todos os projetos
+    public List<Projeto> listarProjetos() {
+        return projetoRepository.findAll();
+    }
+
     // Método para salvar arquivos
-    private void salvarArquivo(MultipartFile file, Projeto projeto, String tipoDocumento) throws Exception {
+    private void salvarArquivo(MultipartFile file, Projeto projeto, String tipoDocumento) throws IOException {
         if (file != null && !file.isEmpty()) {
             Arquivo arquivo = new Arquivo();
             arquivo.setNomeArquivo(file.getOriginalFilename());
@@ -71,20 +80,20 @@ public class ProjetoService {
         }
     }
 
-    // Método para listar todos os projetos
-    public List<Projeto> listarProjetos() {
-        return projetoRepository.findAll();
-    }
-
     // Método para editar projeto
-    public Projeto editarProjeto(Long id, ProjetoDto projetoDto, MultipartFile propostas, MultipartFile contratos, MultipartFile artigos) throws IOException {
+    @Transactional
+    public Projeto editarProjeto(
+            Long id,
+            ProjetoDto projetoDto,
+            MultipartFile propostas,
+            MultipartFile contratos,
+            MultipartFile artigos,
+            List<Long> arquivosExcluidos) throws IOException {
+
         Projeto projetoExistente = projetoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Projeto não encontrado com ID: " + id));
 
-        // Buscar o administrador usando o campo 'adm'
-        Adm administrador = admService.buscarAdm(projetoDto.getAdm())
-                .orElseThrow(() -> new IllegalArgumentException("Administrador não encontrado com ID: " + projetoDto.getAdm()));
-
+        // Atualizar informações do projeto
         projetoExistente.setReferenciaProjeto(projetoDto.getReferenciaProjeto());
         projetoExistente.setEmpresa(projetoDto.getEmpresa());
         projetoExistente.setObjeto(projetoDto.getObjeto());
@@ -93,45 +102,38 @@ public class ProjetoService {
         projetoExistente.setValor(projetoDto.getValor());
         projetoExistente.setDataInicio(projetoDto.getDataInicio());
         projetoExistente.setDataTermino(projetoDto.getDataTermino());
-        projetoExistente.setAdministrador(administrador);
 
+        // Verificar situação
         String situacao = projetoDto.getDataTermino().isAfter(LocalDate.now()) ? "Em Andamento" : "Encerrado";
         projetoExistente.setSituacao(situacao);
 
-        projetoRepository.save(projetoExistente);
-
-        // Salvar arquivos, se houver
-        try {
-            if (propostas != null) salvarArquivo(propostas, projetoExistente, "Propostas");
-            if (contratos != null) salvarArquivo(contratos, projetoExistente, "Contratos");
-            if (artigos != null) salvarArquivo(artigos, projetoExistente, "Artigos");
-        } catch (Exception e) {
-            System.err.println("Erro ao salvar arquivo: " + e.getMessage());
-            e.printStackTrace();
+        // Excluir arquivos se solicitado
+        if (arquivosExcluidos != null && !arquivosExcluidos.isEmpty()) {
+            for (Long arquivoId : arquivosExcluidos) {
+                arquivoRepository.deleteById(arquivoId);
+            }
         }
 
-        return projetoExistente;
+        // Salvar novos arquivos, se fornecidos
+        if (propostas != null) salvarArquivo(propostas, projetoExistente, "Propostas");
+        if (contratos != null) salvarArquivo(contratos, projetoExistente, "Contratos");
+        if (artigos != null) salvarArquivo(artigos, projetoExistente, "Artigos");
+
+        return projetoRepository.save(projetoExistente);
     }
-
-
-
 
     // Método para excluir um projeto e seus arquivos associados
     public void excluirProjeto(Long projetoId) {
-        Optional<Projeto> projetoOptional = projetoRepository.findById(projetoId);
-        if (projetoOptional.isPresent()) {
-            Projeto projeto = projetoOptional.get();
+        Projeto projeto = projetoRepository.findById(projetoId)
+                .orElseThrow(() -> new RuntimeException("Projeto não encontrado com ID: " + projetoId));
 
-            // Primeiro, exclua os arquivos associados a este projeto
-            List<Arquivo> arquivos = arquivoRepository.findByProjetoId(projetoId);
-            for (Arquivo arquivo : arquivos) {
-                arquivoRepository.delete(arquivo);  // Exclui cada arquivo
-            }
-
-            // Agora, exclua o projeto
-            projetoRepository.delete(projeto);
-        } else {
-            throw new RuntimeException("Projeto não encontrado com ID: " + projetoId);
+        // Excluir arquivos associados
+        List<Arquivo> arquivos = arquivoRepository.findByProjetoId(projetoId);
+        for (Arquivo arquivo : arquivos) {
+            arquivoRepository.delete(arquivo);
         }
+
+        // Excluir o projeto
+        projetoRepository.delete(projeto);
     }
 }

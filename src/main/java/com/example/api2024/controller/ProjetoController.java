@@ -31,6 +31,21 @@ public class ProjetoController {
         return projetoService.listarProjetos();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> buscarProjetoPorId(@PathVariable Long id) {
+        try {
+            Projeto projeto = projetoService.buscarProjetoPorId(id);
+            if (projeto != null) {
+                return ResponseEntity.ok(projeto);
+            } else {
+                return ResponseEntity.status(404).body("Projeto não encontrado.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro ao buscar o projeto: " + e.getMessage());
+        }
+    }
+
+
     // Endpoint para cadastrar um novo projeto
     @PostMapping("/cadastrar")
     public void cadastrarProjeto(
@@ -48,13 +63,13 @@ public class ProjetoController {
             @RequestPart("projeto") String projetoJson,
             @RequestPart(value = "propostas", required = false) MultipartFile propostas,
             @RequestPart(value = "contratos", required = false) MultipartFile contratos,
-            @RequestPart(value = "artigos", required = false) MultipartFile artigos) throws IOException {
+            @RequestPart(value = "artigos", required = false) MultipartFile artigos,
+            @RequestParam(value = "arquivosExcluidos", required = false) List<Long> arquivosExcluidos) throws IOException {
 
         try {
-            // Ler o JSON corretamente para o DTO
             ProjetoDto projetoDto = objectMapper.readValue(projetoJson, ProjetoDto.class);
 
-            Projeto projetoAtualizado = projetoService.editarProjeto(id, projetoDto, propostas, contratos, artigos);
+            Projeto projetoAtualizado = projetoService.editarProjeto(id, projetoDto, propostas, contratos, artigos, arquivosExcluidos);
             return ResponseEntity.ok(projetoAtualizado);
         } catch (Exception e) {
             System.err.println("Erro ao processar a requisição: " + e.getMessage());
@@ -62,6 +77,8 @@ public class ProjetoController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+
 
 
     // Endpoint para excluir um projeto

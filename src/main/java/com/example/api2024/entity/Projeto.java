@@ -49,5 +49,5 @@ public class Projeto {
 
     @ManyToOne
     @JoinColumn(name = "idAdm")
-    private Adm administrador;
+    private Adm adm;
 }
