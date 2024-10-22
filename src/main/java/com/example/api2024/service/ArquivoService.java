@@ -3,8 +3,6 @@ package com.example.api2024.service;
 import com.example.api2024.dto.ArquivoDto;
 import com.example.api2024.entity.Arquivo;
 import com.example.api2024.repository.ArquivoRepository;
-import com.example.api2024.entity.Projeto;
-import com.example.api2024.repository.ProjetoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +15,6 @@ public class ArquivoService {
 
     @Autowired
     private ArquivoRepository arquivoRepository;
-
-    @Autowired
-    private ProjetoRepository projetoRepository;
 
     // Fetch all files by project ID
     public List<ArquivoDto> getArquivosByProjetoId(Long projetoId) {
