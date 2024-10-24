@@ -1,5 +1,6 @@
 package com.example.api2024.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import jakarta.persistence.*;
@@ -34,8 +35,7 @@ public class Projeto {
     private String coordenador;
 
     @Column(nullable = false)
-    private double valor;
-
+    private BigDecimal valor;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataInicio;
