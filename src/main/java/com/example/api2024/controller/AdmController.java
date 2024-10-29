@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import com.example.api2024.entity.Adm;
 import com.example.api2024.repository.AdmRepository;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3030"})
 @RestController
 @RequestMapping("/adm")
 public class AdmController {
@@ -23,6 +23,18 @@ public class AdmController {
     public List<Adm> listarAdm() {
         return admRepository.findAll();
     }
+    
+    // Obter informações do administrador pelo ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Adm> getAdmById(@PathVariable Long id) {
+        Optional<Adm> adm = admRepository.findById(id);
+        if (adm.isPresent()) {
+            return ResponseEntity.ok(adm.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
     // Obter o tipo do administrador pelo email
     @GetMapping("/{email}/tipo")

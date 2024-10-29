@@ -1,4 +1,3 @@
-// Contém a configuração do CORS para permitir que o front-end acesse a API.
 package com.example.api2024.configCors;
 
 import org.springframework.context.annotation.Configuration;
@@ -10,13 +9,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebMvc
 public class ConfigCors implements WebMvcConfigurer {
 
-    @SuppressWarnings("null")
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-
         registry.addMapping("/**")
-                .allowedOrigins("*")
+                .allowedOrigins("http://localhost:5173", "http://localhost:3030")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*");
+                .allowedHeaders("Authorization", "Content-Type")
+                .allowCredentials(true);
     }
 }
