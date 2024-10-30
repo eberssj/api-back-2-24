@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import jakarta.persistence.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Entity
 public class Adm {
 
@@ -31,7 +33,8 @@ public class Adm {
     private String tipo;
 
     @Column
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate dataCadastro;
 
     @Column
