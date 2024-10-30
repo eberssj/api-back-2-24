@@ -68,6 +68,38 @@ public class AdmController {
         admRepository.save(novoAdm);
         return ResponseEntity.ok("Administrador criado com sucesso!");
     }
+    
+ // Atualizar administrador por ID (somente super administrador)
+    @PutMapping("/{id}")
+    public ResponseEntity<String> atualizarAdm(
+            @PathVariable Long id,
+            @RequestBody Adm admAtualizado,
+            @RequestParam Long idSuperAdm) {
+
+        Optional<Adm> superAdm = admRepository.findById(idSuperAdm);
+
+        // Verifica se o solicitante é um super administrador (tipo == '1')
+        if (superAdm.isEmpty() || !"1".equals(superAdm.get().getTipo())) {
+            return ResponseEntity.status(403)
+                    .body("Acesso negado: Apenas super administradores podem atualizar administradores.");
+        }
+
+        Optional<Adm> admExistente = admRepository.findById(id);
+        if (admExistente.isPresent()) {
+            Adm adm = admExistente.get();
+            adm.setNome(admAtualizado.getNome());
+            adm.setEmail(admAtualizado.getEmail());
+            adm.setCpf(admAtualizado.getCpf());
+            adm.setTelefone(admAtualizado.getTelefone());
+            adm.setSenha(admAtualizado.getSenha());
+            adm.setTipo(admAtualizado.getTipo());
+            adm.setAtivo(admAtualizado.getAtivo());
+            admRepository.save(adm);
+            return ResponseEntity.ok("Administrador atualizado com sucesso!");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     // Excluir administrador por ID (somente super administrador)
     @DeleteMapping("/excluir/{id}")
