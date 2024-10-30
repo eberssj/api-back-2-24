@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.example.api2024.entity.Adm;
@@ -100,6 +101,30 @@ public class AdmController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    // Atualizar o status ativo do administrador por ID
+    @PatchMapping("/atualizarStatus/{id}")
+    public ResponseEntity<String> patchStatus(@PathVariable Long id, @RequestBody Adm admStatus) {
+        Optional<Adm> admExistente = admRepository.findById(id);
+
+        if (admExistente.isPresent()) {
+            Adm adm = admExistente.get();
+            Boolean novoStatus = admStatus.getAtivo();
+
+            if (novoStatus == null) {
+                return ResponseEntity.badRequest().body("O valor de 'ativo' deve ser fornecido.");
+            }
+
+            adm.setAtivo(novoStatus);
+            admRepository.save(adm);
+
+            String status = novoStatus ? "ativado" : "desativado";
+            return ResponseEntity.ok("Administrador " + status + " com sucesso!");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Administrador não encontrado.");
+        }
+    }
+
 
     // Excluir administrador por ID (somente super administrador)
     @DeleteMapping("/excluir/{id}")
