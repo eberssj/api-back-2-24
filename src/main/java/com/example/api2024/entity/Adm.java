@@ -38,7 +38,7 @@ public class Adm {
     private LocalDate dataCadastro;
 
     @Column
-    private String ativo;
+    private Boolean ativo;
 
     // Getters e Setters
     public Long getId() {
@@ -105,11 +105,11 @@ public class Adm {
         this.dataCadastro = dataCadastro;
     }
 
-    public String getAtivo() {
+    public Boolean getAtivo() {
         return ativo;
     }
 
-    public void setAtivo(String ativo) {
+    public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
     }
 }
