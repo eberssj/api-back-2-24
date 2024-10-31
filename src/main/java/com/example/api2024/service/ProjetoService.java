@@ -43,6 +43,8 @@ public class ProjetoService {
         projeto.setDescricao(projetoDto.getDescricao());
         projeto.setCoordenador(projetoDto.getCoordenador());
         projeto.setValor(projetoDto.getValor());
+        projeto.setOcultarEmpresa(projetoDto.getOcultarEmpresa());
+        projeto.setOcultarValor(projetoDto.getOcultarValor());
         projeto.setDataInicio(projetoDto.getDataInicio());
         projeto.setDataTermino(projetoDto.getDataTermino());
         projeto.setSituacao(projetoDto.getSituacao());
@@ -98,6 +100,8 @@ public class ProjetoService {
         projetoExistente.setObjeto(projetoDto.getObjeto());
         projetoExistente.setDescricao(projetoDto.getDescricao());
         projetoExistente.setCoordenador(projetoDto.getCoordenador());
+        projetoExistente.setOcultarValor(projetoDto.getOcultarValor());
+        projetoExistente.setOcultarEmpresa(projetoDto.getOcultarEmpresa());
         projetoExistente.setValor(projetoDto.getValor());
         projetoExistente.setDataInicio(projetoDto.getDataInicio());
         projetoExistente.setDataTermino(projetoDto.getDataTermino());
