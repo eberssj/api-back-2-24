@@ -16,6 +16,8 @@ public class ProjetoDto {
     private String objeto;
     private String descricao;
     private String coordenador;
+    private Boolean ocultarValor;
+    private Boolean ocultarEmpresa;
     private BigDecimal valor;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
