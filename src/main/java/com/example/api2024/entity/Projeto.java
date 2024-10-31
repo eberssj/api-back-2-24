@@ -34,6 +34,12 @@ public class Projeto {
     @Column(nullable = false)
     private String coordenador;
 
+    @Column (nullable = false)
+    private Boolean ocultarValor;
+
+    @Column (nullable = false)
+    private Boolean ocultarEmpresa;
+
     @Column(nullable = false)
     private BigDecimal valor;
 
