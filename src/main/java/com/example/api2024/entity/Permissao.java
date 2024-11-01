@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "permissao")  // Define o nome da tabela no banco
+@Table(name = "permissao")
 public class Permissao {
 
     @Id
@@ -24,30 +24,35 @@ public class Permissao {
     private Long adminSolicitanteId;
 
     @Column(name = "status_solicitado", nullable = false, length = 50)
-    private String statusSolicitado;  // Ex.: Pendente, Aprovado, Rejeitado
+    private String statusSolicitado;
 
     @Column(name = "data_solicitacao", nullable = false)
-    @DateTimeFormat(pattern = "dd-MM-yyyy")  // Para formatação ao inserir
-    @JsonFormat(pattern = "dd-MM-yyyy")  // Para JSON de entrada e saída
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataSolicitacao;
 
-    @Column(name = "data_aprovado", nullable = true)
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @Column(name = "data_aprovado")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataAprovado;
 
-    @ManyToOne(optional = true)  // Projeto pode ser nulo
-    @JoinColumn(name = "id_projeto", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "id_projeto", referencedColumnName = "id", nullable = true)
     private Projeto projeto;
 
-    @ManyToOne(optional = true)  // Adm pode ser nulo
-    @JoinColumn(name = "id_adm", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "id_adm", referencedColumnName = "id", nullable = true)
     private Adm adm;
 
-    @Lob  // Permite armazenar grandes textos
+    @Lob
     @Column(name = "informacao_projeto", nullable = false, columnDefinition = "TEXT")
-    private String informacaoProjeto;  // Armazena os dados em JSON (texto)
+    private String informacaoProjeto;
 
     @Column(name = "tipo_acao", nullable = false, length = 50)
-    private String tipoAcao;  // Ex.: Criação, Edição, Deleção
+    private String tipoAcao;
+
+    @PrePersist
+    public void prePersist() {
+        this.dataSolicitacao = LocalDate.now(); // Define a data atual ao persistir
+    }
 }

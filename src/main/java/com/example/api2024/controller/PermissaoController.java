@@ -7,7 +7,6 @@ import com.example.api2024.dto.PermissaoDto;
 import com.example.api2024.entity.Permissao;
 import com.example.api2024.service.PermissaoService;
 
-
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/permissao")
@@ -18,14 +17,17 @@ public class PermissaoController {
 
     // Rota para enviar uma solicitação de criação de projeto
     @PostMapping("/solicitarCriacao")
-    public ResponseEntity<Permissao> solicitarCriacaoProjeto(@RequestBody PermissaoDto solicitacaoDto) {
-        Permissao solicitacao = permissaoService.criarSolicitacao(
+    public ResponseEntity<Permissao> criarSolicitacao(@RequestBody PermissaoDto solicitacaoDto) {
+        // Criar a solicitação de permissão usando o serviço
+        Permissao permissao = permissaoService.criarSolicitacao(
                 solicitacaoDto.getAdminSolicitanteId(),
                 solicitacaoDto.getStatusSolicitado(),
-                solicitacaoDto.getDataSolicitacao(),
+                solicitacaoDto.getDataSolicitacao(), // Adicione isso se estiver utilizando a data
                 solicitacaoDto.getInformacaoProjeto(),
                 solicitacaoDto.getTipoAcao()
         );
-        return ResponseEntity.status(201).body(solicitacao);
+
+        // Retornar a resposta com status 201 (Criado)
+        return ResponseEntity.status(201).body(permissao);
     }
 }
