@@ -31,6 +31,7 @@ public class seguranca {
             "/login",
             "/arquivos/projeto/**",
             "/arquivos/download/**",
+            "/adm/redefinir-senha"
     };
 
     @Bean

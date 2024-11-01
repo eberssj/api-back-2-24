@@ -10,5 +10,6 @@ public interface AdmRepository extends JpaRepository<Adm, Long> {
 
     Optional<Adm> findByEmail(String email);
     boolean existsByEmail(String email);
+    Optional<Adm> findByTokenRedefinicao(String tokenRedefinicao);
     
 }

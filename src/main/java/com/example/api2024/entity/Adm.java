@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import jakarta.persistence.*;
 import org.springframework.format.annotation.DateTimeFormat;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
@@ -20,16 +19,16 @@ public class Adm {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 11)
     private String cpf;
 
-    @Column
+    @Column(length = 15)
     private String telefone;
 
     @Column(nullable = false)
     private String senha;
 
-    @Column
+    @Column(length = 10)
     private String tipo;
 
     @Column
@@ -37,8 +36,14 @@ public class Adm {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate dataCadastro;
 
-    @Column
-    private Boolean ativo;
+    @Column(nullable = false)
+    private Boolean ativo = true;
+
+    @Column(nullable = false)
+    private Boolean isSenhaRedefinida = false;
+
+    @Column(unique = true)
+    private String tokenRedefinicao; // Token para redefinição de senha
 
     // Getters e Setters
     public Long getId() {
@@ -111,5 +116,21 @@ public class Adm {
 
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public Boolean getIsSenhaRedefinida() {
+        return isSenhaRedefinida;
+    }
+
+    public void setIsSenhaRedefinida(Boolean isSenhaRedefinida) {
+        this.isSenhaRedefinida = isSenhaRedefinida;
+    }
+
+    public String getTokenRedefinicao() {
+        return tokenRedefinicao;
+    }
+
+    public void setTokenRedefinicao(String tokenRedefinicao) {
+        this.tokenRedefinicao = tokenRedefinicao;
     }
 }

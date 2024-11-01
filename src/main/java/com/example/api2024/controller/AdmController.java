@@ -7,9 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import java.util.UUID;
 
 import com.example.api2024.entity.Adm;
 import com.example.api2024.repository.AdmRepository;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3030"})
 @RestController
@@ -18,6 +25,12 @@ public class AdmController {
 
     @Autowired
     private AdmRepository admRepository;
+
+     @Autowired
+    private JavaMailSender mailSender;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // Listar todos os administradores
     @GetMapping("/listar")
@@ -52,23 +65,71 @@ public class AdmController {
                 .orElseThrow(() -> new Exception("Adm não encontrado"));
     }
 
-    // Criar um novo administrador (somente super administrador)
+    // Método de criação de administrador com token
     @PostMapping("/criar")
     public ResponseEntity<String> criarAdm(
             @RequestBody Adm novoAdm,
             @RequestParam Long idSuperAdm) {
-
         Optional<Adm> superAdm = admRepository.findById(idSuperAdm);
-
-        // Verifica se o criador é um super administrador (tipo == '1')
+    
         if (superAdm.isEmpty() || !"1".equals(superAdm.get().getTipo())) {
-            return ResponseEntity.status(403)
-                    .body("Acesso negado: Apenas super administradores podem criar novos administradores.");
+            return ResponseEntity.status(403).body("Acesso negado: Apenas super administradores podem criar novos administradores.");
         }
-
+    
+        // Gera o token de redefinição de senha
+        String token = UUID.randomUUID().toString();
+        novoAdm.setTokenRedefinicao(token); // Salva o token no banco
         admRepository.save(novoAdm);
+    
+        try {
+            enviarEmailBoasVindas(novoAdm.getEmail(), token); // Passa o token para o e-mail
+        } catch (MessagingException e) {
+            return ResponseEntity.status(500).body("Administrador criado, mas o e-mail não pôde ser enviado.");
+        }
+    
         return ResponseEntity.ok("Administrador criado com sucesso!");
     }
+    
+    private void enviarEmailBoasVindas(String emailDestino, String token) throws MessagingException {
+        MimeMessage mensagem = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mensagem, "utf-8");
+    
+        String mensagemHtml = "<h3>Bem-vindo ao sistema!</h3>"
+                + "<p>Olá, você foi cadastrado como administrador em nosso sistema.</p>"
+                + "<p><a href='http://localhost:5173/redefinir-senha?token=" + token + "'>Clique aqui para redefinir sua senha</a></p>";
+    
+        helper.setTo(emailDestino);
+        helper.setSubject("Bem-vindo ao Sistema - Redefinição de Senha");
+        helper.setText(mensagemHtml, true);
+        helper.setFrom("adm06887@gmail.com");
+    
+        mailSender.send(mensagem);
+    }
+    
+    // Método para redefinir senha usando o token
+    @PostMapping("/redefinir-senha")
+    public ResponseEntity<String> redefinirSenha(
+            @RequestParam String token,
+            @RequestBody String novaSenha) {
+        Optional<Adm> admOpt = admRepository.findByTokenRedefinicao(token);
+    
+        if (admOpt.isEmpty()) {
+            return ResponseEntity.status(400).body("Token inválido.");
+        }
+    
+        Adm adm = admOpt.get();
+        if (adm.getIsSenhaRedefinida()) {
+            return ResponseEntity.status(400).body("A senha já foi redefinida anteriormente.");
+        }
+    
+        adm.setSenha(passwordEncoder.encode(novaSenha));
+        adm.setIsSenhaRedefinida(true);
+        adm.setTokenRedefinicao(null); // Invalida o token
+        admRepository.save(adm);
+    
+        return ResponseEntity.ok("Senha redefinida com sucesso!");
+    }
+    
     
  // Atualizar administrador por ID (somente super administrador)
     @PutMapping("/{id}")
