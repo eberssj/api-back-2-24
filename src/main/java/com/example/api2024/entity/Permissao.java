@@ -1,101 +1,53 @@
 package com.example.api2024.entity;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import java.time.LocalDate;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Table(name = "permissao")  // Define o nome da tabela no banco
 public class Permissao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(name = "admin_solicitante_id", nullable = false)
     private Long adminSolicitanteId;
 
-    @Column
-    private String statusSolicitado;
+    @Column(name = "status_solicitado", nullable = false, length = 50)
+    private String statusSolicitado;  // Ex.: Pendente, Aprovado, Rejeitado
 
-    @Column
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    @Column(name = "data_solicitacao", nullable = false)
+    @DateTimeFormat(pattern = "dd-MM-yyyy")  // Para formatação ao inserir
+    @JsonFormat(pattern = "dd-MM-yyyy")  // Para JSON de entrada e saída
     private LocalDate dataSolicitacao;
 
-    @Column
+    @Column(name = "data_aprovado", nullable = true)
     @DateTimeFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate dataAprovado;
 
-    @ManyToOne
-    @JoinColumn(name = "id_adm")
-    private Adm adm;
-
-    @ManyToOne
-    @JoinColumn(name = "id_projeto")
+    @ManyToOne(optional = true)  // Projeto pode ser nulo
+    @JoinColumn(name = "id_projeto", referencedColumnName = "id")
     private Projeto projeto;
 
-    // Getters e Setters
+    @ManyToOne(optional = true)  // Adm pode ser nulo
+    @JoinColumn(name = "id_adm", referencedColumnName = "id")
+    private Adm adm;
 
-    public Long getId() {
-        return id;
-    }
+    @Lob  // Permite armazenar grandes textos
+    @Column(name = "informacao_projeto", nullable = false, columnDefinition = "TEXT")
+    private String informacaoProjeto;  // Armazena os dados em JSON (texto)
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getAdminSolicitanteId() {
-        return adminSolicitanteId;
-    }
-
-    public void setAdminSolicitanteId(Long adminSolicitanteId) {
-        this.adminSolicitanteId = adminSolicitanteId;
-    }
-
-    public String getStatusSolicitado() {
-        return statusSolicitado;
-    }
-
-    public void setStatusSolicitado(String statusSolicitado) {
-        this.statusSolicitado = statusSolicitado;
-    }
-
-    public LocalDate getDataSolicitacao() {
-        return dataSolicitacao;
-    }
-
-    public void setDataSolicitacao(LocalDate dataSolicitacao) {
-        this.dataSolicitacao = dataSolicitacao;
-    }
-
-    public LocalDate getDataAprovado() {
-        return dataAprovado;
-    }
-
-    public void setDataAprovado(LocalDate dataAprovado) {
-        this.dataAprovado = dataAprovado;
-    }
-
-    public Adm getAdm() {
-        return adm;
-    }
-
-    public void setAdm(Adm adm) {
-        this.adm = adm;
-    }
-
-    public Projeto getProjetoId() {
-        return projeto;
-    }
-
-    public void setProjetoId(Projeto projeto) {
-        this.projeto = projeto;
-    }
+    @Column(name = "tipo_acao", nullable = false, length = 50)
+    private String tipoAcao;  // Ex.: Criação, Edição, Deleção
 }
