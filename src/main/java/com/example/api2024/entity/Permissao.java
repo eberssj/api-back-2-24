@@ -55,4 +55,9 @@ public class Permissao {
     public void prePersist() {
         this.dataSolicitacao = LocalDate.now(); // Define a data atual ao persistir
     }
+
+    public void setProjetoId(Long projetoId) {
+        this.projeto = new Projeto();
+        this.projeto.setId(projetoId);
+    }
 }

@@ -49,7 +49,6 @@ public class Projeto {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataTermino;
 
-
     @Column
     private String situacao;
 

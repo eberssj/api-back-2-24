@@ -6,10 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.api2024.entity.Adm;
 
+
 public interface AdmRepository extends JpaRepository<Adm, Long> {
 
     Optional<Adm> findByEmail(String email);
     boolean existsByEmail(String email);
     Optional<Adm> findByTokenRedefinicao(String tokenRedefinicao);
-    
+    Optional<Adm> findById(Long id);
 }
