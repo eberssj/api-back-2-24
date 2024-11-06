@@ -1,5 +1,6 @@
 package com.example.api2024.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,19 +19,16 @@ public class PermissaoController {
     @Autowired
     private PermissaoService permissaoService;
 
-    // Rota para enviar uma solicitação de criação de projeto
     @PostMapping("/solicitarCriacao")
     public ResponseEntity<Permissao> criarSolicitacao(@RequestBody PermissaoDto solicitacaoDto) {
-        // Criar a solicitação de permissão usando o serviço
         Permissao permissao = permissaoService.criarSolicitacao(
                 solicitacaoDto.getAdminSolicitanteId(),
                 solicitacaoDto.getStatusSolicitado(),
-                solicitacaoDto.getDataSolicitacao(), // Adicione isso se estiver utilizando a data
+                solicitacaoDto.getDataSolicitacao(),
                 solicitacaoDto.getInformacaoProjeto(),
                 solicitacaoDto.getTipoAcao()
         );
 
-        // Retornar a resposta com status 201 (Criado)
         return ResponseEntity.status(201).body(permissao);
     }
 
@@ -56,5 +54,24 @@ public class PermissaoController {
         )).collect(Collectors.toList());
 
         return ResponseEntity.ok(pedidosDto);
+    }
+
+    @PostMapping("/solicitarExclusao")
+    public ResponseEntity<Permissao> solicitarExclusao(@RequestBody PermissaoDto solicitacaoDto) {
+        Permissao permissao = permissaoService.criarSolicitacao(
+                solicitacaoDto.getAdminSolicitanteId(),
+                "Pendente",
+                LocalDate.now(),
+                solicitacaoDto.getInformacaoProjeto(),
+                "Exclusao"
+        );
+
+        return ResponseEntity.status(201).body(permissao);
+    }
+
+    @PostMapping("/aprovarExclusao/{id}")
+    public ResponseEntity<Permissao> aprovarExclusao(@PathVariable Long id, @RequestParam Long adminAprovadorId) {
+        Permissao permissao = permissaoService.aceitarSolicitacao(id, adminAprovadorId);
+        return ResponseEntity.ok(permissao);
     }
 }
