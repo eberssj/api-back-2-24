@@ -14,7 +14,7 @@ import com.example.api2024.service.PermissaoService;
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/permissao")
-public class PermissaoController {
+public class PermissaoController { 
 
     @Autowired
     private PermissaoService permissaoService;
@@ -72,6 +72,12 @@ public class PermissaoController {
     @PostMapping("/aprovarExclusao/{id}")
     public ResponseEntity<Permissao> aprovarExclusao(@PathVariable Long id, @RequestParam Long adminAprovadorId) {
         Permissao permissao = permissaoService.aceitarSolicitacao(id, adminAprovadorId);
+        return ResponseEntity.ok(permissao);
+    }
+
+    @PostMapping("/negar/{id}")
+    public ResponseEntity<Permissao> negarSolicitacao(@PathVariable Long id, @RequestParam Long adminAprovadorId) {
+        Permissao permissao = permissaoService.negarSolicitacao(id, adminAprovadorId);
         return ResponseEntity.ok(permissao);
     }
 }

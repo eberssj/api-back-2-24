@@ -97,4 +97,25 @@ public class PermissaoService {
     public List<Permissao> listarPedidosPendentes() {
         return permissaoRepository.findByStatusSolicitado("Pendente");
     }
+
+    public Permissao negarSolicitacao(Long permissaoId, Long adminAprovadorId) {
+        Permissao permissao = permissaoRepository.findById(permissaoId)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+    
+        Adm adminAprovador = admRepository.findById(adminAprovadorId)
+                .orElseThrow(() -> new IllegalArgumentException("Administrador aprovador não encontrado"));
+    
+        // Verificar se o pedido já foi processado
+        if (!"Pendente".equals(permissao.getStatusSolicitado())) {
+            throw new IllegalStateException("A solicitação já foi processada");
+        }
+    
+        // Atualizar status para "Negado" e definir data de aprovação
+        permissao.setStatusSolicitado("Negado");
+        permissao.setDataAprovado(LocalDate.now());
+        permissao.setAdm(adminAprovador);
+    
+        // Salvar a alteração
+        return permissaoRepository.save(permissao);
+    }    
 }
