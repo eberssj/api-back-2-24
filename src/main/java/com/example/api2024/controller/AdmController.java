@@ -1,6 +1,7 @@
 package com.example.api2024.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import com.example.api2024.entity.Adm;
 import com.example.api2024.repository.AdmRepository;
@@ -67,28 +69,33 @@ public class AdmController {
 
     // Método de criação de administrador com token
     @PostMapping("/criar")
-    public ResponseEntity<String> criarAdm(
-            @RequestBody Adm novoAdm,
-            @RequestParam Long idSuperAdm) {
-        Optional<Adm> superAdm = admRepository.findById(idSuperAdm);
-    
-        if (superAdm.isEmpty() || !"1".equals(superAdm.get().getTipo())) {
-            return ResponseEntity.status(403).body("Acesso negado: Apenas super administradores podem criar novos administradores.");
-        }
-    
-        // Gera o token de redefinição de senha
-        String token = UUID.randomUUID().toString();
-        novoAdm.setTokenRedefinicao(token); // Salva o token no banco
-        admRepository.save(novoAdm);
-    
-        try {
-            enviarEmailBoasVindas(novoAdm.getEmail(), token); // Passa o token para o e-mail
-        } catch (MessagingException e) {
-            return ResponseEntity.status(500).body("Administrador criado, mas o e-mail não pôde ser enviado.");
-        }
-    
-        return ResponseEntity.ok("Administrador criado com sucesso!");
+    public ResponseEntity<Map<String, String>> criarAdm(
+        @RequestBody Adm novoAdm,
+        @RequestParam Long idSuperAdm) {
+    Optional<Adm> superAdm = admRepository.findById(idSuperAdm);
+
+    if (superAdm.isEmpty() || !"1".equals(superAdm.get().getTipo())) {
+        return ResponseEntity.status(403).body(Map.of("message", "Acesso negado: Apenas super administradores podem criar novos administradores."));
     }
+
+    String token = UUID.randomUUID().toString();
+    novoAdm.setTokenRedefinicao(token);
+    admRepository.save(novoAdm);
+
+    // Retorna a resposta imediatamente
+    ResponseEntity<Map<String, String>> response = ResponseEntity.ok(Map.of("message", "Administrador criado com sucesso!"));
+
+    // Envia o e-mail de forma assíncrona
+    CompletableFuture.runAsync(() -> {
+        try {
+            enviarEmailBoasVindas(novoAdm.getEmail(), token);
+        } catch (MessagingException e) {
+            System.err.println("Erro ao enviar e-mail: " + e.getMessage());
+        }
+    });
+
+    return response;
+}
     
     private void enviarEmailBoasVindas(String emailDestino, String token) throws MessagingException {
         MimeMessage mensagem = mailSender.createMimeMessage();
