@@ -29,7 +29,7 @@ public class Permissao {
     @Column(name = "data_solicitacao", nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate dataSolicitacao;
+    private LocalDate dataSolicitacao = LocalDate.now(); // Data definida automaticamente
 
     @Column(name = "data_aprovado")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -37,11 +37,11 @@ public class Permissao {
     private LocalDate dataAprovado;
 
     @ManyToOne
-    @JoinColumn(name = "id_projeto", referencedColumnName = "id", nullable = true)
+    @JoinColumn(name = "id_projeto")
     private Projeto projeto;
 
     @ManyToOne
-    @JoinColumn(name = "id_adm", referencedColumnName = "id", nullable = true)
+    @JoinColumn(name = "id_adm")
     private Adm adm;
 
     @Lob
@@ -50,14 +50,4 @@ public class Permissao {
 
     @Column(name = "tipo_acao", nullable = false, length = 50)
     private String tipoAcao;
-
-    @PrePersist
-    public void prePersist() {
-        this.dataSolicitacao = LocalDate.now(); // Define a data atual ao persistir
-    }
-
-    public void setProjetoId(Long projetoId) {
-        this.projeto = new Projeto();
-        this.projeto.setId(projetoId);
-    }
 }
