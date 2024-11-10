@@ -3,8 +3,10 @@ package com.example.api2024.service;
 import com.example.api2024.dto.ProjetoDto;
 import com.example.api2024.entity.Adm;
 import com.example.api2024.entity.Arquivo;
+import com.example.api2024.entity.Permissao;
 import com.example.api2024.entity.Projeto;
 import com.example.api2024.repository.ArquivoRepository;
+import com.example.api2024.repository.PermissaoRepository;
 import com.example.api2024.repository.ProjetoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,11 @@ public class ProjetoService {
     private ArquivoRepository arquivoRepository;
 
     @Autowired
+    private PermissaoRepository permissaoRepository;
+
+    @Autowired
     private AdmService admService;
+
 
     public Projeto buscarProjetoPorId(Long id) {
         return projetoRepository.findById(id)
@@ -126,17 +132,20 @@ public class ProjetoService {
     }
 
     // Método para excluir um projeto e seus arquivos associados
+    @Transactional
     public void excluirProjeto(Long projetoId) {
-        Projeto projeto = projetoRepository.findById(projetoId)
-                .orElseThrow(() -> new RuntimeException("Projeto não encontrado com ID: " + projetoId));
+        Projeto projeto = buscarProjetoPorId(projetoId);
 
-        // Excluir arquivos associados
-        List<Arquivo> arquivos = arquivoRepository.findByProjetoId(projetoId);
-        for (Arquivo arquivo : arquivos) {
-            arquivoRepository.delete(arquivo);
+        List<Permissao> permissoes = permissaoRepository.findByProjetoId(projetoId);
+        if (!permissoes.isEmpty()) {
+            permissaoRepository.deleteAll(permissoes);
         }
 
-        // Excluir o projeto
+        List<Arquivo> arquivos = arquivoRepository.findByProjetoId(projetoId);
+        if (!arquivos.isEmpty()) {
+            arquivoRepository.deleteAll(arquivos);
+        }
+
         projetoRepository.delete(projeto);
     }
 }

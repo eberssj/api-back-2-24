@@ -1,11 +1,5 @@
 package com.example.api2024.controller;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import com.example.api2024.dto.PermissaoDto;
 import com.example.api2024.entity.Permissao;
 import com.example.api2024.service.PermissaoService;
@@ -17,12 +11,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/permissao")
-public class PermissaoController {
 @CrossOrigin(origins = "http://localhost:5173")
 public class PermissaoController {
 
@@ -35,10 +29,9 @@ public class PermissaoController {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // Endpoint para solicitar criação de um projeto
+    // Endpoint para criar uma solicitação de criação de projeto
     @PostMapping("/solicitarCriacao")
     public ResponseEntity<Permissao> criarSolicitacao(@RequestBody PermissaoDto solicitacaoDto) {
-        // Criar a solicitação de permissão usando o serviço
         Permissao permissao = permissaoService.criarSolicitacao(
                 solicitacaoDto.getAdminSolicitanteId(),
                 solicitacaoDto.getStatusSolicitado(),
@@ -46,8 +39,6 @@ public class PermissaoController {
                 solicitacaoDto.getInformacaoProjeto(),
                 solicitacaoDto.getTipoAcao()
         );
-
-        // Retornar a resposta com status 201 (Criado)
         return ResponseEntity.status(201).body(permissao);
     }
 
@@ -58,12 +49,8 @@ public class PermissaoController {
             @RequestPart(value = "propostas", required = false) MultipartFile propostas,
             @RequestPart(value = "contratos", required = false) MultipartFile contratos,
             @RequestPart(value = "artigos", required = false) MultipartFile artigos) {
-
         try {
-            // Converter o JSON recebido em um objeto PermissaoDto
             PermissaoDto solicitacaoDto = objectMapper.readValue(solicitacaoJson, PermissaoDto.class);
-
-            // Criar a solicitação de edição usando o serviço
             Permissao permissao = permissaoService.solicitarEdicaoProjeto(
                     solicitacaoDto.getAdminSolicitanteId(),
                     solicitacaoDto.getStatusSolicitado(),
@@ -72,7 +59,6 @@ public class PermissaoController {
                     solicitacaoDto.getTipoAcao()
             );
 
-            // Salvar os arquivos, se presentes
             if (propostas != null && !propostas.isEmpty()) {
                 arquivoService.salvarArquivo(propostas, permissao.getProjeto(), "Propostas", false);
             }
@@ -90,14 +76,22 @@ public class PermissaoController {
         }
     }
 
-    // Endpoint para aceitar uma solicitação de criação ou edição de projeto
+    // Endpoint para aceitar uma solicitação
     @PostMapping("/aceitar/{id}")
     public ResponseEntity<Permissao> aceitarSolicitacao(
             @PathVariable Long id,
             @RequestParam Long adminAprovadorId) {
-        Permissao permissao = permissaoService.aceitarSolicitacao(id, adminAprovadorId);
-        return ResponseEntity.ok(permissao);
+        System.out.println("Aceitando solicitação ID: " + id + " com adminAprovadorId: " + adminAprovadorId);
+        try {
+            Permissao permissao = permissaoService.aceitarSolicitacao(id, adminAprovadorId);
+            return ResponseEntity.ok(permissao);
+        } catch (Exception e) {
+            System.err.println("Erro ao aceitar solicitação: " + e.getMessage());
+            return ResponseEntity.status(400).body(null);
+        }
     }
+
+
 
     // Endpoint para listar todas as solicitações pendentes
     @GetMapping("/pedidos")
@@ -120,6 +114,7 @@ public class PermissaoController {
         return ResponseEntity.ok(pedidosDto);
     }
 
+    // Endpoint para solicitar exclusão de um projeto
     @PostMapping("/solicitarExclusao")
     public ResponseEntity<Permissao> solicitarExclusao(@RequestBody PermissaoDto solicitacaoDto) {
         Permissao permissao = permissaoService.criarSolicitacao(
@@ -129,16 +124,18 @@ public class PermissaoController {
                 solicitacaoDto.getInformacaoProjeto(),
                 "Exclusao"
         );
-
         return ResponseEntity.status(201).body(permissao);
     }
 
+
+    // Endpoint para aprovar exclusão de um projeto
     @PostMapping("/aprovarExclusao/{id}")
     public ResponseEntity<Permissao> aprovarExclusao(@PathVariable Long id, @RequestParam Long adminAprovadorId) {
         Permissao permissao = permissaoService.aceitarSolicitacao(id, adminAprovadorId);
         return ResponseEntity.ok(permissao);
     }
 
+    // Endpoint para negar uma solicitação
     @PostMapping("/negar/{id}")
     public ResponseEntity<Permissao> negarSolicitacao(@PathVariable Long id, @RequestParam Long adminAprovadorId) {
         Permissao permissao = permissaoService.negarSolicitacao(id, adminAprovadorId);

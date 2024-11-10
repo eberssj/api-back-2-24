@@ -62,10 +62,9 @@ public class PermissaoService {
         return permissaoRepository.save(permissao);
     }
 
-    // Aceitar uma solicitação de edição e aprovar arquivos pendentes
+    // Aceitar uma solicitação de criação, edição ou exclusão
     @Transactional
     public Permissao aceitarSolicitacao(Long permissaoId, Long adminAprovadorId) {
-        // Busca a permissão pela ID
         Permissao permissao = permissaoRepository.findById(permissaoId)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
 
@@ -76,30 +75,80 @@ public class PermissaoService {
             throw new IllegalStateException("A solicitação já foi processada");
         }
 
-        Projeto projeto;
-        try {
-            projeto = objectMapper.readValue(permissao.getInformacaoProjeto(), Projeto.class);
-            projeto.setId(permissao.getProjeto().getId());
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Erro ao processar as informações do projeto", e);
+        Projeto projeto = null;
+        if (permissao.getInformacaoProjeto() != null) {
+            try {
+                projeto = objectMapper.readValue(permissao.getInformacaoProjeto(), Projeto.class);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Erro ao processar as informações do projeto", e);
+            }
         }
 
-        projeto.setAdm(adminAprovador);
-        Projeto projetoSalvo = projetoRepository.save(projeto);
+        switch (permissao.getTipoAcao()) {
+            case "Criacao":
+                if (projeto != null) {
+                    projeto.setAdm(adminAprovador);
+                    projeto.setSituacao(projeto.getDataTermino().isAfter(LocalDate.now()) ? "Em Andamento" : "Encerrado");
+                    Projeto novoProjeto = projetoRepository.save(projeto);
+                    permissao.setProjeto(novoProjeto);
+                }
+                break;
+
+            case "Editar":
+                if (permissao.getProjeto() != null) {
+                    Projeto projetoExistente = projetoRepository.findById(permissao.getProjeto().getId())
+                            .orElseThrow(() -> new RuntimeException("Projeto não encontrado"));
+
+                    if (projeto != null) {
+                        projetoExistente.setReferenciaProjeto(projeto.getReferenciaProjeto());
+                        projetoExistente.setEmpresa(projeto.getEmpresa());
+                        projetoExistente.setObjeto(projeto.getObjeto());
+                        projetoExistente.setDescricao(projeto.getDescricao());
+                        projetoExistente.setCoordenador(projeto.getCoordenador());
+                        projetoExistente.setOcultarValor(projeto.getOcultarValor());
+                        projetoExistente.setOcultarEmpresa(projeto.getOcultarEmpresa());
+                        projetoExistente.setValor(projeto.getValor());
+                        projetoExistente.setDataInicio(projeto.getDataInicio());
+                        projetoExistente.setDataTermino(projeto.getDataTermino());
+                        projetoExistente.setSituacao(projeto.getDataTermino().isAfter(LocalDate.now()) ? "Em Andamento" : "Encerrado");
+                        projetoExistente.setAdm(adminAprovador);
+                        projetoRepository.save(projetoExistente);
+                        permissao.setProjeto(projetoExistente);
+                    }
+                }
+                break;
+
+            case "Exclusao":
+                // Certifique-se de que o projeto é recuperado corretamente antes de excluir
+                Long projetoId = permissao.getProjeto() != null ? permissao.getProjeto().getId() : projeto != null ? projeto.getId() : null;
+
+                if (projetoId != null) {
+                    Projeto projetoParaExcluir = projetoRepository.findById(projetoId)
+                            .orElseThrow(() -> new RuntimeException("Projeto não encontrado para exclusão"));
+
+                    // Excluir arquivos relacionados
+                    arquivoRepository.deleteByProjetoId(projetoParaExcluir.getId());
+
+                    // Excluir o projeto
+                    projetoRepository.delete(projetoParaExcluir);
+                } else {
+                    throw new RuntimeException("ID do projeto não encontrado para exclusão");
+                }
+                break;
+
+            default:
+                throw new IllegalArgumentException("Tipo de ação desconhecido: " + permissao.getTipoAcao());
+        }
 
         permissao.setStatusSolicitado("Aprovado");
         permissao.setDataAprovado(LocalDate.now());
-        permissao.setProjeto(projetoSalvo);
-
-        // Aprovar todos os arquivos pendentes para o projeto
-        List<Arquivo> arquivosPendentes = arquivoRepository.findByProjetoIdAndAprovadoFalse(projetoSalvo.getId());
-        if (!arquivosPendentes.isEmpty()) {
-            arquivosPendentes.forEach(arquivo -> arquivo.setAprovado(true));
-            arquivoRepository.saveAll(arquivosPendentes);
-        }
-
+        permissao.setAdm(adminAprovador);
         return permissaoRepository.save(permissao);
     }
+
+
+
+
 
     // Listar todas as solicitações pendentes
     public List<Permissao> listarPedidosPendentes() {
