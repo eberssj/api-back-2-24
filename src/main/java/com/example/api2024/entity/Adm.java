@@ -25,7 +25,7 @@ public class Adm {
     @Column(length = 15)
     private String telefone;
 
-    @Column(nullable = false)
+    @Column
     private String senha;
 
     @Column(length = 10)

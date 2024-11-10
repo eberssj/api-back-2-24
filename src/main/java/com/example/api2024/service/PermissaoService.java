@@ -1,5 +1,8 @@
 package com.example.api2024.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.example.api2024.entity.Adm;
 import com.example.api2024.entity.Arquivo;
 import com.example.api2024.entity.Permissao;
@@ -29,6 +32,8 @@ public class PermissaoService {
     // Criar uma nova solicitação de criação de projeto
     public Permissao criarSolicitacao(Long adminSolicitanteId, String statusSolicitado, LocalDate dataSolicitacao,
                                       String informacaoProjeto, String tipoAcao) {
+
+        // Criar uma nova permissão e configurar os valores
         Permissao permissao = new Permissao();
         permissao.setAdminSolicitanteId(adminSolicitanteId);
         permissao.setStatusSolicitado(statusSolicitado);
@@ -36,6 +41,7 @@ public class PermissaoService {
         permissao.setInformacaoProjeto(informacaoProjeto);
         permissao.setTipoAcao(tipoAcao);
 
+        // Salvar a permissão no banco de dados
         return permissaoRepository.save(permissao);
     }
 
@@ -59,6 +65,7 @@ public class PermissaoService {
     // Aceitar uma solicitação de edição e aprovar arquivos pendentes
     @Transactional
     public Permissao aceitarSolicitacao(Long permissaoId, Long adminAprovadorId) {
+        // Busca a permissão pela ID
         Permissao permissao = permissaoRepository.findById(permissaoId)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
 
@@ -97,5 +104,26 @@ public class PermissaoService {
     // Listar todas as solicitações pendentes
     public List<Permissao> listarPedidosPendentes() {
         return permissaoRepository.findByStatusSolicitado("Pendente");
+    }
+
+    public Permissao negarSolicitacao(Long permissaoId, Long adminAprovadorId) {
+        Permissao permissao = permissaoRepository.findById(permissaoId)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+
+        Adm adminAprovador = admRepository.findById(adminAprovadorId)
+                .orElseThrow(() -> new IllegalArgumentException("Administrador aprovador não encontrado"));
+
+        // Verificar se o pedido já foi processado
+        if (!"Pendente".equals(permissao.getStatusSolicitado())) {
+            throw new IllegalStateException("A solicitação já foi processada");
+        }
+
+        // Atualizar status para "Negado" e definir data de aprovação
+        permissao.setStatusSolicitado("Negado");
+        permissao.setDataAprovado(LocalDate.now());
+        permissao.setAdm(adminAprovador);
+
+        // Salvar a alteração
+        return permissaoRepository.save(permissao);
     }
 }

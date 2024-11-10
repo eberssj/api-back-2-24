@@ -1,5 +1,11 @@
 package com.example.api2024.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import com.example.api2024.dto.PermissaoDto;
 import com.example.api2024.entity.Permissao;
 import com.example.api2024.service.PermissaoService;
@@ -16,6 +22,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/permissao")
+public class PermissaoController {
 @CrossOrigin(origins = "http://localhost:5173")
 public class PermissaoController {
 
@@ -31,6 +38,7 @@ public class PermissaoController {
     // Endpoint para solicitar criação de um projeto
     @PostMapping("/solicitarCriacao")
     public ResponseEntity<Permissao> criarSolicitacao(@RequestBody PermissaoDto solicitacaoDto) {
+        // Criar a solicitação de permissão usando o serviço
         Permissao permissao = permissaoService.criarSolicitacao(
                 solicitacaoDto.getAdminSolicitanteId(),
                 solicitacaoDto.getStatusSolicitado(),
@@ -38,6 +46,8 @@ public class PermissaoController {
                 solicitacaoDto.getInformacaoProjeto(),
                 solicitacaoDto.getTipoAcao()
         );
+
+        // Retornar a resposta com status 201 (Criado)
         return ResponseEntity.status(201).body(permissao);
     }
 
@@ -108,5 +118,30 @@ public class PermissaoController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(pedidosDto);
+    }
+
+    @PostMapping("/solicitarExclusao")
+    public ResponseEntity<Permissao> solicitarExclusao(@RequestBody PermissaoDto solicitacaoDto) {
+        Permissao permissao = permissaoService.criarSolicitacao(
+                solicitacaoDto.getAdminSolicitanteId(),
+                "Pendente",
+                LocalDate.now(),
+                solicitacaoDto.getInformacaoProjeto(),
+                "Exclusao"
+        );
+
+        return ResponseEntity.status(201).body(permissao);
+    }
+
+    @PostMapping("/aprovarExclusao/{id}")
+    public ResponseEntity<Permissao> aprovarExclusao(@PathVariable Long id, @RequestParam Long adminAprovadorId) {
+        Permissao permissao = permissaoService.aceitarSolicitacao(id, adminAprovadorId);
+        return ResponseEntity.ok(permissao);
+    }
+
+    @PostMapping("/negar/{id}")
+    public ResponseEntity<Permissao> negarSolicitacao(@PathVariable Long id, @RequestParam Long adminAprovadorId) {
+        Permissao permissao = permissaoService.negarSolicitacao(id, adminAprovadorId);
+        return ResponseEntity.ok(permissao);
     }
 }
