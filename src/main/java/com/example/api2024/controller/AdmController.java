@@ -77,6 +77,8 @@ public class AdmController {
     if (superAdm.isEmpty() || !"1".equals(superAdm.get().getTipo())) {
         return ResponseEntity.status(403).body(Map.of("message", "Acesso negado: Apenas super administradores podem criar novos administradores."));
     }
+    
+    novoAdm.setSenha("12345678");
 
     String token = UUID.randomUUID().toString();
     novoAdm.setTokenRedefinicao(token);
