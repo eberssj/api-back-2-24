@@ -8,5 +8,6 @@ import com.example.api2024.entity.Permissao;
 @Repository
 public interface PermissaoRepository extends JpaRepository<Permissao, Long> {
     List<Permissao> findByStatusSolicitado(String statusSolicitado);
-    List<Permissao> findByProjetoId(Long projetoId); // Método adicionado
+    List<Permissao> findByProjetoId(Long projetoId); // Método para buscar permissões por projeto
+    void deleteByProjetoId(Long projetoId); // Método para excluir permissões pelo ID do projeto
 }

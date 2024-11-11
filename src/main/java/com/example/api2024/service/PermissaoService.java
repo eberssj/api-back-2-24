@@ -119,12 +119,14 @@ public class PermissaoService {
                 break;
 
             case "Exclusao":
-                // Certifique-se de que o projeto é recuperado corretamente antes de excluir
                 Long projetoId = permissao.getProjeto() != null ? permissao.getProjeto().getId() : projeto != null ? projeto.getId() : null;
 
                 if (projetoId != null) {
                     Projeto projetoParaExcluir = projetoRepository.findById(projetoId)
                             .orElseThrow(() -> new RuntimeException("Projeto não encontrado para exclusão"));
+
+                    // Excluir todas as permissões relacionadas ao projeto
+                    permissaoRepository.deleteByProjetoId(projetoParaExcluir.getId());
 
                     // Excluir arquivos relacionados
                     arquivoRepository.deleteByProjetoId(projetoParaExcluir.getId());
@@ -135,6 +137,7 @@ public class PermissaoService {
                     throw new RuntimeException("ID do projeto não encontrado para exclusão");
                 }
                 break;
+
 
             default:
                 throw new IllegalArgumentException("Tipo de ação desconhecido: " + permissao.getTipoAcao());
