@@ -72,4 +72,40 @@ public class BolsistaController {
         bolsistaRepository.deleteById(idBolsista);
         return ResponseEntity.ok(Map.of("message", "Bolsista excluído com sucesso!"));
     }
+
+    @PutMapping("/editar/{idBolsista}")
+    public ResponseEntity<Map<String, String>> editarBolsista(
+            @PathVariable Long idBolsista,
+            @RequestBody Bolsista bolsistaAtualizado,
+            @RequestParam Long idAdm) {
+
+        // Verificar se o administrador tem permissão
+        Optional<Adm> administrador = admRepository.findById(idAdm);
+        if (administrador.isEmpty() || !"1".equals(administrador.get().getTipo())) {
+            return ResponseEntity.status(403).body(Map.of("message", "Acesso negado: Apenas administradores podem editar bolsistas."));
+        }
+
+        // Verificar se o bolsista existe
+        Optional<Bolsista> bolsistaExistente = bolsistaRepository.findById(idBolsista);
+        if (bolsistaExistente.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of("message", "Erro: Bolsista não encontrado."));
+        }
+
+        // Atualizar os dados do bolsista
+        Bolsista bolsista = bolsistaExistente.get();
+        bolsista.setNome(bolsistaAtualizado.getNome());
+        bolsista.setAreaAtuacao(bolsistaAtualizado.getAreaAtuacao());
+        bolsista.setProjeto(bolsistaAtualizado.getProjeto());
+        bolsista.setConvenio(bolsistaAtualizado.getConvenio());
+        bolsista.setCidade(bolsistaAtualizado.getCidade());
+        bolsista.setCpf(bolsistaAtualizado.getCpf());
+        bolsista.setTelefone(bolsistaAtualizado.getTelefone());
+        bolsista.setValorBolsa(bolsistaAtualizado.getValorBolsa());
+        bolsista.setDuracaoBolsa(bolsistaAtualizado.getDuracaoBolsa());
+
+        // Salvar o bolsista atualizado no banco de dados
+        bolsistaRepository.save(bolsista);
+
+        return ResponseEntity.ok(Map.of("message", "Bolsista editado com sucesso!"));
+    }
 }
