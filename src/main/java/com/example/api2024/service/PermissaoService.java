@@ -1,10 +1,8 @@
 package com.example.api2024.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.api2024.entity.Adm;
-import com.example.api2024.entity.Arquivo;
 import com.example.api2024.entity.Permissao;
 import com.example.api2024.entity.Projeto;
 import com.example.api2024.repository.AdmRepository;
@@ -13,7 +11,6 @@ import com.example.api2024.repository.PermissaoRepository;
 import com.example.api2024.repository.ProjetoRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
