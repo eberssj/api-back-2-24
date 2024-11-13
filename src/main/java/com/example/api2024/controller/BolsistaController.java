@@ -72,6 +72,17 @@ public class BolsistaController {
         bolsistaRepository.deleteById(idBolsista);
         return ResponseEntity.ok(Map.of("message", "Bolsista excluído com sucesso!"));
     }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<?> listarBolsistaPorId(@PathVariable Long id) {
+        Optional<Bolsista> bolsista = bolsistaRepository.findById(id);
+        if (bolsista.isPresent()) {
+            return ResponseEntity.ok(bolsista.get());
+        } else {
+            return ResponseEntity.status(404).body(Map.of("message", "Bolsista não encontrado."));
+        }
+    }
+
 
     @PutMapping("/editar/{idBolsista}")
     public ResponseEntity<Map<String, String>> editarBolsista(
