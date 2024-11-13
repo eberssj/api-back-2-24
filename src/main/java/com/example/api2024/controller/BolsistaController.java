@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/bolsistas")
@@ -72,7 +74,7 @@ public class BolsistaController {
         bolsistaRepository.deleteById(idBolsista);
         return ResponseEntity.ok(Map.of("message", "Bolsista excluído com sucesso!"));
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<?> listarBolsistaPorId(@PathVariable Long id) {
         Optional<Bolsista> bolsista = bolsistaRepository.findById(id);
@@ -82,7 +84,6 @@ public class BolsistaController {
             return ResponseEntity.status(404).body(Map.of("message", "Bolsista não encontrado."));
         }
     }
-
 
     @PutMapping("/editar/{idBolsista}")
     public ResponseEntity<Map<String, String>> editarBolsista(
@@ -118,5 +119,30 @@ public class BolsistaController {
         bolsistaRepository.save(bolsista);
 
         return ResponseEntity.ok(Map.of("message", "Bolsista editado com sucesso!"));
+    }
+
+    // Função 1: Número de bolsistas
+    @GetMapping("/numero")
+    public ResponseEntity<Long> getNumeroBolsistas() {
+        Long numeroBolsistas = bolsistaRepository.count();
+        return ResponseEntity.ok(numeroBolsistas);
+    }
+
+    // Função 2: Valor total pago em bolsas
+    @GetMapping("/valor-total")
+    public ResponseEntity<BigDecimal> getValorTotalBolsa() {
+        BigDecimal valorTotal = bolsistaRepository.totalValorBolsa();
+        return ResponseEntity.ok(valorTotal);
+    }
+
+    // Função 3: Quantidade de bolsistas por área de atuação
+    @GetMapping("/por-area")
+    public ResponseEntity<Map<String, Long>> getBolsistasPorArea() {
+        List<Object[]> results = bolsistaRepository.countBolsistasPorArea();
+        Map<String, Long> bolsistasPorArea = new HashMap<>();
+        for (Object[] result : results) {
+            bolsistasPorArea.put((String) result[0], (Long) result[1]);
+        }
+        return ResponseEntity.ok(bolsistasPorArea);
     }
 }
