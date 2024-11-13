@@ -79,8 +79,6 @@ public class ProjetoController {
     }
 
 
-
-
     // Endpoint para excluir um projeto
     @DeleteMapping("/excluir/{id}")
     public void excluirProjeto(@PathVariable Long id) {

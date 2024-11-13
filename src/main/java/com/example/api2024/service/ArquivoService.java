@@ -19,8 +19,9 @@ public class ArquivoService {
 
     private final ArquivoRepository arquivoRepository;
 
+    // Método atualizado para buscar arquivos por projeto sem filtro de 'aprovado'
     public List<ArquivoDto> getArquivosByProjetoId(Long projetoId) {
-        List<Arquivo> arquivos = arquivoRepository.findByProjetoIdAndAprovadoTrue(projetoId);
+        List<Arquivo> arquivos = arquivoRepository.findByProjetoId(projetoId);
         return arquivos.stream()
                 .map(arquivo -> new ArquivoDto(
                         arquivo.getId(),
@@ -31,11 +32,13 @@ public class ArquivoService {
                 )).collect(Collectors.toList());
     }
 
+    // Método para obter um arquivo por ID
     public Optional<Arquivo> getArquivoById(Long arquivoId) {
         return arquivoRepository.findById(arquivoId);
     }
 
-    public Arquivo salvarArquivo(MultipartFile file, Projeto projeto, String tipoDocumento, boolean aprovado) throws IOException {
+    // Método para salvar um novo arquivo
+    public Arquivo salvarArquivo(MultipartFile file, Projeto projeto, String tipoDocumento) throws IOException {
         if (file != null && !file.isEmpty()) {
             Arquivo arquivo = new Arquivo();
             arquivo.setNomeArquivo(file.getOriginalFilename());
@@ -43,7 +46,6 @@ public class ArquivoService {
             arquivo.setConteudo(file.getBytes());
             arquivo.setTipoDocumento(tipoDocumento);
             arquivo.setProjeto(projeto);
-            arquivo.setAprovado(aprovado);
             return arquivoRepository.save(arquivo);
         }
         return null;

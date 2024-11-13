@@ -11,8 +11,6 @@ import java.util.List;
 
 public interface ArquivoRepository extends JpaRepository<Arquivo, Long> {
     List<Arquivo> findByProjetoId(Long projetoId);
-    List<Arquivo> findByProjetoIdAndAprovadoTrue(Long projetoId);
-    List<Arquivo> findByProjetoIdAndAprovadoFalse(Long projetoId);
 
     @Modifying
     @Transactional

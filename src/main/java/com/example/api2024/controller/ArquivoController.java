@@ -19,12 +19,14 @@ public class ArquivoController {
 
     private final ArquivoService arquivoService;
 
+    // Endpoint para obter arquivos por projeto
     @GetMapping("/projeto/{projetoId}")
     public ResponseEntity<List<ArquivoDto>> getArquivosByProjetoId(@PathVariable Long projetoId) {
         List<ArquivoDto> arquivos = arquivoService.getArquivosByProjetoId(projetoId);
         return ResponseEntity.ok(arquivos);
     }
 
+    // Endpoint para download de arquivos por ID
     @GetMapping("/download/{arquivoId}")
     public ResponseEntity<ByteArrayResource> downloadArquivo(@PathVariable Long arquivoId) {
         Arquivo arquivo = arquivoService.getArquivoById(arquivoId)

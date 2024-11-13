@@ -1,21 +1,21 @@
 package com.example.api2024.repository;
 
-import java.util.List;
+import com.example.api2024.entity.PermissaoArquivo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Repository;
-import com.example.api2024.entity.Permissao;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 @Repository
-public interface PermissaoRepository extends JpaRepository<Permissao, Long> {
-    List<Permissao> findByStatusSolicitado(String statusSolicitado);
-    List<Permissao> findByProjetoId(Long projetoId);
+public interface PermissaoArquivoRepository extends JpaRepository<PermissaoArquivo, Long> {
+    List<PermissaoArquivo> findByPermissaoId(Long permissaoId);
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM Permissao p WHERE p.projeto.id = :projetoId")
-    void deleteByProjetoId(@Param("projetoId") Long projetoId);
+    @Query("DELETE FROM PermissaoArquivo pa WHERE pa.permissao.id = :permissaoId")
+    void deleteByPermissaoId(@Param("permissaoId") Long permissaoId);
 }
