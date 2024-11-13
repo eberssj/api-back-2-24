@@ -16,11 +16,16 @@ public class ConvenioController {
     @Autowired
     private ConvenioService convenioService;
 
-    // Create
     @PostMapping("/criar")
-    public ResponseEntity<Convenio> criarConvenio(@RequestBody Convenio convenio) {
-        Convenio novoConvenio = convenioService.criarConvenio(convenio);
-        return new ResponseEntity<>(novoConvenio, HttpStatus.CREATED);
+    public ResponseEntity<?> criarConvenio(@RequestBody Convenio convenio) {
+        try {
+            Convenio novoConvenio = convenioService.criarConvenio(convenio);
+            return new ResponseEntity<>(novoConvenio, HttpStatus.CREATED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            String errorMessage = "Erro ao criar convênio: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+        }
     }
 
     // Read All
@@ -29,9 +34,20 @@ public class ConvenioController {
         List<Convenio> convenios = convenioService.listarConvenios();
         return new ResponseEntity<>(convenios, HttpStatus.OK);
     }
+    
+    // Read por ID
+    @GetMapping("/listar/{id}")
+    public ResponseEntity<Convenio> listarConvenioPorId(@PathVariable Long id) {
+        Convenio convenio = convenioService.buscarConvenioPorId(id);
+        if (convenio != null) {
+            return new ResponseEntity<>(convenio, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
 
     // Update
-    @PutMapping("/atualizar/{id}")
+    @PutMapping("/editar/{id}")
     public ResponseEntity<Convenio> atualizarConvenio(@PathVariable Long id, @RequestBody Convenio convenio) {
         Convenio convenioAtualizado = convenioService.atualizarConvenio(id, convenio);
         if (convenioAtualizado != null) {
