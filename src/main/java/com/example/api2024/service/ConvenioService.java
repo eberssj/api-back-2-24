@@ -23,6 +23,11 @@ public class ConvenioService {
     public List<Convenio> listarConvenios() {
         return convenioRepository.findAll();
     }
+    
+    // Read por ID
+    public Convenio buscarConvenioPorId(Long id) {
+        return convenioRepository.findById(id).orElse(null);
+    }
 
     // Update
     public Convenio atualizarConvenio(Long id, Convenio convenioAtualizado) {
@@ -31,7 +36,8 @@ public class ConvenioService {
             Convenio convenio = convenioExistente.get();
             convenio.setNome(convenioAtualizado.getNome());
             convenio.setTipoConvenio(convenioAtualizado.getTipoConvenio());
-            convenio.setEmpresa(convenioAtualizado.getEmpresa());
+            convenio.setObjetivo(convenioAtualizado.getObjetivo());
+            convenio.setInstituicao(convenioAtualizado.getInstituicao());
             convenio.setPrazo(convenioAtualizado.getPrazo());
             return convenioRepository.save(convenio);
         }
