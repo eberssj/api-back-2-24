@@ -77,8 +77,16 @@ public class ProjetoController {
             return ResponseEntity.badRequest().build();
         }
     }
-
-
+    
+    @GetMapping("/proxima-referencia")
+    public ResponseEntity<String> obterProximaReferencia() {
+        try {
+            String proximaReferencia = projetoService.calcularProximaReferencia();
+            return ResponseEntity.ok(proximaReferencia);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro ao calcular a próxima referência: " + e.getMessage());
+        }
+    }
 
 
     // Endpoint para excluir um projeto

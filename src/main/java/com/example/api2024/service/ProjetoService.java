@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.stream.Collectors;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -38,12 +39,23 @@ public class ProjetoService {
                 .orElseThrow(() -> new RuntimeException("Projeto não encontrado."));
     }
 
-    // Método para cadastrar um novo projeto
     public void cadastrarProjeto(ProjetoDto projetoDto, MultipartFile propostas, MultipartFile contratos, MultipartFile artigos) throws Exception {
         Projeto projeto = new Projeto();
 
+        // Validar o formato da referência
+        String referencia = projetoDto.getReferenciaProjeto();
+        if (!referencia.matches("\\d{3}/\\d{2}")) {
+            throw new RuntimeException("A referência deve estar no formato XXX/YY.");
+        }
+
+        // Validar unicidade da referência
+        if (projetoRepository.existsByReferenciaProjeto(referencia)) {
+            throw new RuntimeException("A referência fornecida já está em uso.");
+        }
+
         // Populando os dados do projeto
-        projeto.setReferenciaProjeto(projetoDto.getReferenciaProjeto());
+        projeto.setReferenciaProjeto(referencia);
+        projeto.setNome(projetoDto.getNome());
         projeto.setEmpresa(projetoDto.getEmpresa());
         projeto.setObjeto(projetoDto.getObjeto());
         projeto.setDescricao(projetoDto.getDescricao());
@@ -102,6 +114,7 @@ public class ProjetoService {
 
         // Atualizar informações do projeto
         projetoExistente.setReferenciaProjeto(projetoDto.getReferenciaProjeto());
+        projetoExistente.setNome(projetoDto.getNome());
         projetoExistente.setEmpresa(projetoDto.getEmpresa());
         projetoExistente.setObjeto(projetoDto.getObjeto());
         projetoExistente.setDescricao(projetoDto.getDescricao());
@@ -148,4 +161,24 @@ public class ProjetoService {
 
         projetoRepository.delete(projeto);
     }
+    
+    public String calcularProximaReferencia() {
+        int anoAtual = LocalDate.now().getYear() % 100;
+        List<Integer> numerosUtilizados = projetoRepository.findAll()
+            .stream()
+            .map(Projeto::getReferenciaProjeto)
+            .filter(ref -> ref.endsWith("/" + anoAtual))
+            .map(ref -> Integer.parseInt(ref.split("/")[0]))
+            .sorted()
+            .collect(Collectors.toList());
+
+        for (int i = 1; i <= 999; i++) {
+            if (!numerosUtilizados.contains(i)) {
+                return String.format("%03d/%02d", i, anoAtual);
+            }
+        }
+        throw new RuntimeException("Todas as referências para o ano " + anoAtual + " estão ocupadas.");
+    }
 }
+
+	

@@ -12,6 +12,7 @@ import java.time.LocalDate;
 public class ProjetoDto {
     private Long id;
     private String referenciaProjeto;
+    private String nome;
     private String empresa;
     private String objeto;
     private String descricao;
