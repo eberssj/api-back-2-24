@@ -17,8 +17,11 @@ public class Projeto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String referenciaProjeto;
+    
+    @Column(nullable = false)
+    private String nome;
 
     @Column(nullable = false)
     private String empresa;
