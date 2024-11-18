@@ -1,18 +1,15 @@
 package com.example.api2024.service;
 
+import com.example.api2024.entity.*;
 import org.springframework.stereotype.Service;
 
-import com.example.api2024.entity.Adm;
-import com.example.api2024.entity.Permissao;
-import com.example.api2024.entity.Projeto;
-import com.example.api2024.repository.AdmRepository;
-import com.example.api2024.repository.ArquivoRepository;
-import com.example.api2024.repository.PermissaoRepository;
-import com.example.api2024.repository.ProjetoRepository;
+import com.example.api2024.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,28 +18,50 @@ import java.util.List;
 public class PermissaoService {
 
     private final PermissaoRepository permissaoRepository;
+    private final PermissaoArquivoRepository permissaoArquivoRepository;
     private final AdmRepository admRepository;
     private final ProjetoRepository projetoRepository;
     private final ArquivoRepository arquivoRepository;
     private final ObjectMapper objectMapper;
 
-    // Criar uma nova solicitação de criação de projeto
-    public Permissao criarSolicitacao(Long adminSolicitanteId, String statusSolicitado, LocalDate dataSolicitacao,
-                                      String informacaoProjeto, String tipoAcao) {
+    // Método para criar uma solicitação com ou sem arquivos
+    public Permissao criarSolicitacaoComArquivos(Long adminSolicitanteId, String statusSolicitado,
+                                                 String informacaoProjeto, String tipoAcao,
+                                                 MultipartFile propostas, MultipartFile contratos, MultipartFile artigos) throws IOException {
+        Permissao permissao = criarSolicitacao(adminSolicitanteId, statusSolicitado, informacaoProjeto, tipoAcao);
+        salvarArquivoPermissao(propostas, permissao, "Propostas");
+        salvarArquivoPermissao(contratos, permissao, "Contratos");
+        salvarArquivoPermissao(artigos, permissao, "Artigos");
+        return permissao;
+    }
 
-        // Criar uma nova permissão e configurar os valores
+    // Método para criar uma solicitação básica
+    public Permissao criarSolicitacao(Long adminSolicitanteId, String statusSolicitado,
+                                      String informacaoProjeto, String tipoAcao) {
         Permissao permissao = new Permissao();
         permissao.setAdminSolicitanteId(adminSolicitanteId);
         permissao.setStatusSolicitado(statusSolicitado);
-        permissao.setDataSolicitacao(dataSolicitacao);
+        permissao.setDataSolicitacao(LocalDate.now());
         permissao.setInformacaoProjeto(informacaoProjeto);
         permissao.setTipoAcao(tipoAcao);
-
-        // Salvar a permissão no banco de dados
         return permissaoRepository.save(permissao);
     }
 
-    // Solicitar a edição de um projeto existente
+    // Salvar arquivos relacionados a uma permissão
+    public void salvarArquivoPermissao(MultipartFile file, Permissao permissao, String tipoDocumento) throws IOException {
+        if (file != null && !file.isEmpty()) {
+            PermissaoArquivo arquivo = new PermissaoArquivo();
+            arquivo.setNomeArquivo(file.getOriginalFilename());
+            arquivo.setTipoArquivo(file.getContentType());
+            arquivo.setConteudo(file.getBytes());
+            arquivo.setTipoDocumento(tipoDocumento);
+            arquivo.setPermissao(permissao);
+            arquivo.setDataUpload(LocalDate.now());
+            permissaoArquivoRepository.save(arquivo);
+        }
+    }
+
+    // Método para criar uma solicitação de edição de projeto
     public Permissao solicitarEdicaoProjeto(Long adminSolicitanteId, String statusSolicitado, Long projetoId,
                                             String informacaoProjeto, String tipoAcao) {
         Projeto projeto = projetoRepository.findById(projetoId)
@@ -51,104 +70,101 @@ public class PermissaoService {
         Permissao permissao = new Permissao();
         permissao.setAdminSolicitanteId(adminSolicitanteId);
         permissao.setStatusSolicitado(statusSolicitado);
+        permissao.setDataSolicitacao(LocalDate.now());
         permissao.setInformacaoProjeto(informacaoProjeto);
         permissao.setTipoAcao(tipoAcao);
         permissao.setProjeto(projeto);
-        permissao.setDataSolicitacao(LocalDate.now());
 
         return permissaoRepository.save(permissao);
     }
-
     // Aceitar uma solicitação de criação, edição ou exclusão
     @Transactional
     public Permissao aceitarSolicitacao(Long permissaoId, Long adminAprovadorId) {
         Permissao permissao = permissaoRepository.findById(permissaoId)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
-
         Adm adminAprovador = admRepository.findById(adminAprovadorId)
-                .orElseThrow(() -> new IllegalArgumentException("Administrador aprovador não encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Administrador não encontrado"));
 
         if (!"Pendente".equals(permissao.getStatusSolicitado())) {
             throw new IllegalStateException("A solicitação já foi processada");
         }
 
         Projeto projeto = null;
+
         if (permissao.getInformacaoProjeto() != null) {
             try {
                 projeto = objectMapper.readValue(permissao.getInformacaoProjeto(), Projeto.class);
             } catch (Exception e) {
-                throw new IllegalArgumentException("Erro ao processar as informações do projeto", e);
+                throw new IllegalArgumentException("Erro ao processar informações do projeto", e);
             }
         }
 
-        switch (permissao.getTipoAcao()) {
-            case "Criacao":
-                if (projeto != null) {
-                    projeto.setAdm(adminAprovador);
-                    projeto.setSituacao(projeto.getDataTermino().isAfter(LocalDate.now()) ? "Em Andamento" : "Encerrado");
-                    Projeto novoProjeto = projetoRepository.save(projeto);
-                    permissao.setProjeto(novoProjeto);
-                }
-                break;
+        // Tratamento de Criação
+        if ("Criacao".equals(permissao.getTipoAcao()) && projeto != null) {
+            projeto.setAdm(adminAprovador);
+            projeto.setSituacao(projeto.getDataTermino().isAfter(LocalDate.now()) ? "Em Andamento" : "Encerrado");
+            Projeto novoProjeto = projetoRepository.save(projeto);
+            transferirArquivosParaProjeto(permissao, novoProjeto);
+            permissao.setProjeto(novoProjeto);
+        }
+        // Tratamento de Edição
+        else if ("Editar".equals(permissao.getTipoAcao()) && projeto != null) {
+            Projeto projetoExistente = permissao.getProjeto();
+            if (projetoExistente != null) {
+                // Atualizar o projeto existente com os novos dados
+                atualizarProjeto(projetoExistente, projeto);
 
-            case "Editar":
-                if (permissao.getProjeto() != null) {
-                    Projeto projetoExistente = projetoRepository.findById(permissao.getProjeto().getId())
-                            .orElseThrow(() -> new RuntimeException("Projeto não encontrado"));
+                // Salvar o projeto atualizado no banco de dados
+                projetoExistente.setAdm(adminAprovador);
+                projetoExistente.setSituacao(projeto.getDataTermino().isAfter(LocalDate.now()) ? "Em Andamento" : "Encerrado");
+                projetoRepository.save(projetoExistente);
 
-                    if (projeto != null) {
-                        projetoExistente.setReferenciaProjeto(projeto.getReferenciaProjeto());
-                        projetoExistente.setEmpresa(projeto.getEmpresa());
-                        projetoExistente.setObjeto(projeto.getObjeto());
-                        projetoExistente.setDescricao(projeto.getDescricao());
-                        projetoExistente.setCoordenador(projeto.getCoordenador());
-                        projetoExistente.setOcultarValor(projeto.getOcultarValor());
-                        projetoExistente.setOcultarEmpresa(projeto.getOcultarEmpresa());
-                        projetoExistente.setValor(projeto.getValor());
-                        projetoExistente.setDataInicio(projeto.getDataInicio());
-                        projetoExistente.setDataTermino(projeto.getDataTermino());
-                        projetoExistente.setSituacao(projeto.getDataTermino().isAfter(LocalDate.now()) ? "Em Andamento" : "Encerrado");
-                        projetoExistente.setAdm(adminAprovador);
-                        projetoRepository.save(projetoExistente);
-                        permissao.setProjeto(projetoExistente);
-                    }
-                }
-                break;
-
-            case "Exclusao":
-                Long projetoId = permissao.getProjeto() != null ? permissao.getProjeto().getId() : projeto != null ? projeto.getId() : null;
-
-                if (projetoId != null) {
-                    Projeto projetoParaExcluir = projetoRepository.findById(projetoId)
-                            .orElseThrow(() -> new RuntimeException("Projeto não encontrado para exclusão"));
-
-                    // Excluir todas as permissões relacionadas ao projeto
-                    permissaoRepository.deleteByProjetoId(projetoParaExcluir.getId());
-
-                    // Excluir arquivos relacionados
-                    arquivoRepository.deleteByProjetoId(projetoParaExcluir.getId());
-
-                    // Excluir o projeto
-                    projetoRepository.delete(projetoParaExcluir);
-                } else {
-                    throw new RuntimeException("ID do projeto não encontrado para exclusão");
-                }
-                break;
-
-
-            default:
-                throw new IllegalArgumentException("Tipo de ação desconhecido: " + permissao.getTipoAcao());
+                // Transferir arquivos se existirem
+                transferirArquivosParaProjeto(permissao, projetoExistente);
+            }
+        }
+        // Tratamento de Exclusão
+        else if ("Exclusao".equals(permissao.getTipoAcao()) && permissao.getProjeto() != null) {
+            Projeto projetoParaExcluir = permissao.getProjeto();
+            arquivoRepository.deleteByProjetoId(projetoParaExcluir.getId());
+            projetoRepository.delete(projetoParaExcluir);
         }
 
+        // Atualizar status da permissão
         permissao.setStatusSolicitado("Aprovado");
         permissao.setDataAprovado(LocalDate.now());
         permissao.setAdm(adminAprovador);
         return permissaoRepository.save(permissao);
     }
 
+    private void atualizarProjeto(Projeto projetoExistente, Projeto projetoAtualizado) {
+        projetoExistente.setReferenciaProjeto(projetoAtualizado.getReferenciaProjeto());
+        projetoExistente.setEmpresa(projetoAtualizado.getEmpresa());
+        projetoExistente.setObjeto(projetoAtualizado.getObjeto());
+        projetoExistente.setDescricao(projetoAtualizado.getDescricao());
+        projetoExistente.setCoordenador(projetoAtualizado.getCoordenador());
+        projetoExistente.setOcultarValor(projetoAtualizado.getOcultarValor());
+        projetoExistente.setOcultarEmpresa(projetoAtualizado.getOcultarEmpresa());
+        projetoExistente.setValor(projetoAtualizado.getValor());
+        projetoExistente.setDataInicio(projetoAtualizado.getDataInicio());
+        projetoExistente.setDataTermino(projetoAtualizado.getDataTermino());
+        projetoExistente.setSituacao(projetoAtualizado.getDataTermino().isAfter(LocalDate.now()) ? "Em Andamento" : "Encerrado");
+    }
 
 
 
+    private void transferirArquivosParaProjeto(Permissao permissao, Projeto projeto) {
+        List<PermissaoArquivo> arquivosPermissao = permissaoArquivoRepository.findByPermissaoId(permissao.getId());
+        for (PermissaoArquivo arquivoPermissao : arquivosPermissao) {
+            Arquivo novoArquivo = new Arquivo();
+            novoArquivo.setNomeArquivo(arquivoPermissao.getNomeArquivo());
+            novoArquivo.setTipoArquivo(arquivoPermissao.getTipoArquivo());
+            novoArquivo.setConteudo(arquivoPermissao.getConteudo());
+            novoArquivo.setTipoDocumento(arquivoPermissao.getTipoDocumento());
+            novoArquivo.setProjeto(projeto);
+            arquivoRepository.save(novoArquivo);
+        }
+    }
 
     // Listar todas as solicitações pendentes
     public List<Permissao> listarPedidosPendentes() {
