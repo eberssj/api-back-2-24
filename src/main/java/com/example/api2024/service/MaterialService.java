@@ -5,8 +5,11 @@ import com.example.api2024.repository.MaterialRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MaterialService {
@@ -52,5 +55,27 @@ public class MaterialService {
             return true;
         }
         return false;
+    }
+
+    // Valor total pago nos materiais
+    public BigDecimal calcularValorTotal() {
+        return materialRepository.calcularValorTotal();
+    }
+
+    public Map<String, Integer> listarMateriaisPorProjeto() {
+        List<Object[]> resultados = materialRepository.listarMateriaisPorProjeto();
+        return resultados.stream().collect(Collectors.toMap(
+            resultado -> (String) resultado[0], // Nome do projeto
+            resultado -> ((Long) resultado[1]).intValue() // Quantidade de materiais
+        ));
+    }
+        
+    // Quantidade comprada por fornecedor
+    public Map<String, Integer> listarQuantidadePorFornecedor() {
+        return materialRepository.listarQuantidadePorFornecedor().stream()
+                .collect(Collectors.toMap(
+                        obj -> (String) obj[0],
+                        obj -> ((Long) obj[1]).intValue()
+                ));
     }
 }

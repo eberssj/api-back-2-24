@@ -3,17 +3,12 @@ package com.example.api2024.controller;
 import com.example.api2024.dto.PermissaoDto;
 import com.example.api2024.entity.Permissao;
 import com.example.api2024.service.PermissaoService;
-import com.example.api2024.service.ArquivoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/permissao")
@@ -22,9 +17,6 @@ public class PermissaoController {
 
     @Autowired
     private PermissaoService permissaoService;
-
-    @Autowired
-    private ArquivoService arquivoService;
 
     @Autowired
     private ObjectMapper objectMapper;

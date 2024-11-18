@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/materiais")
@@ -67,5 +67,26 @@ public class MaterialController {
             return ResponseEntity.ok(Map.of("message", "Material excluído com sucesso!"));
         }
         return ResponseEntity.status(404).body(Map.of("message", "Material não encontrado."));
+    }
+
+    // Obter Valor Total Pago
+    @GetMapping("/valor-total")
+    public ResponseEntity<Map<String, BigDecimal>> obterValorTotalPago() {
+        BigDecimal valorTotal = materialService.calcularValorTotal();
+        return ResponseEntity.ok(Map.of("valorTotal", valorTotal));
+    }
+
+    // Listar Materiais por Projeto
+    @GetMapping("/materiais-por-projeto")
+    public ResponseEntity<Map<String, Integer>> listarMateriaisPorProjeto() {
+        Map<String, Integer> materiaisPorProjeto = materialService.listarMateriaisPorProjeto();
+        return ResponseEntity.ok(materiaisPorProjeto);
+    }    
+
+    // Listar Quantidade Comprada por Fornecedor
+    @GetMapping("/quantidade-por-fornecedor")
+    public ResponseEntity<Map<String, Integer>> listarQuantidadePorFornecedor() {
+        Map<String, Integer> quantidadePorFornecedor = materialService.listarQuantidadePorFornecedor();
+        return ResponseEntity.ok(quantidadePorFornecedor);
     }
 }
