@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/materiais")
+@RequestMapping("/material")
 public class MaterialController {
 
     @Autowired
@@ -33,11 +33,22 @@ public class MaterialController {
     }
 
     // Read All
-    @GetMapping
-    public ResponseEntity<List<MaterialDTO>> listarMateriais() {
-        List<MaterialDTO> materiaisDTO = materialService.listarMateriais();
-        return ResponseEntity.ok(materiaisDTO);
+    @GetMapping("/listar")
+    public ResponseEntity<List<Material>> listarMateriais() {
+        List<Material> materiais = materialService.listarMateriais();
+        return ResponseEntity.ok(materiais);
     }
+    
+    // Read by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Material> listarMaterialPorId(@PathVariable Long id) {
+        Material material = materialService.buscarMaterialPorId(id);
+        if (material != null) {
+            return ResponseEntity.ok(material);
+        }
+        return ResponseEntity.status(404).build(); // Retorna 404 se o material não for encontrado
+    }
+
  
     // Update
     @PutMapping("/editar/{id}")

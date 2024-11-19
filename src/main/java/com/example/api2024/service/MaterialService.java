@@ -22,10 +22,11 @@ public class MaterialService {
     public Material criarMaterial(Material material) {
         return materialRepository.save(material);
     }
-
+    
     // Read by ID
-    public Optional<Material> obterMaterialPorId(Long id) {
-        return materialRepository.findById(id);
+    public Material buscarMaterialPorId(Long id) {
+        Optional<Material> material = materialRepository.findById(id);
+        return material.orElse(null); // Retorna o material ou null se não for encontrado
     }
 
     // Read All
