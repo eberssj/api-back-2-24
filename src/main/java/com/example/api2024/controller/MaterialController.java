@@ -1,5 +1,6 @@
 package com.example.api2024.controller;
 
+import com.example.api2024.dto.MaterialDTO;
 import com.example.api2024.entity.Material;
 import com.example.api2024.service.MaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +34,10 @@ public class MaterialController {
 
     // Read All
     @GetMapping
-    public ResponseEntity<List<Material>> listarMateriais() {
-        List<Material> materiais = materialService.listarMateriais();
-        return ResponseEntity.ok(materiais);
+    public ResponseEntity<List<MaterialDTO>> listarMateriais() {
+        List<MaterialDTO> materiaisDTO = materialService.listarMateriais();
+        return ResponseEntity.ok(materiaisDTO);
     }
-
  
     // Update
     @PutMapping("/editar/{id}")

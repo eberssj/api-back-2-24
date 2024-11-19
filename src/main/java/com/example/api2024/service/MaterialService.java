@@ -1,5 +1,6 @@
 package com.example.api2024.service;
 
+import com.example.api2024.dto.MaterialDTO;
 import com.example.api2024.entity.Material;
 import com.example.api2024.repository.MaterialRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +29,8 @@ public class MaterialService {
     }
 
     // Read All
-    public List<Material> listarMateriais() {
-        return materialRepository.findAll();
+    public List<MaterialDTO> listarMateriais() {
+        return materialRepository.listarMateriaisComProjeto();
     }
 
     // Update
