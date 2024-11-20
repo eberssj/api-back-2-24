@@ -15,7 +15,9 @@ public class MaterialDTO {
     public MaterialDTO(Long id, String nome, String referenciaProjeto, String nomeProjeto, Integer quantidadeUsada, BigDecimal valor, String fornecedor, String descricao) {
         this.id = id;
         this.nome = nome;
-        this.nomeProjeto = referenciaProjeto + " - " + nomeProjeto; // Formatação no DTO
+        this.nomeProjeto = (referenciaProjeto != null && nomeProjeto != null)
+                ? referenciaProjeto + " - " + nomeProjeto
+                : "Projeto não associado"; // Valor padrão caso `projetoAssociado` seja nulo
         this.quantidadeUsada = quantidadeUsada;
         this.valor = valor;
         this.fornecedor = fornecedor;

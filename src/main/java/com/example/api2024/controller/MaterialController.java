@@ -34,10 +34,11 @@ public class MaterialController {
 
     // Read All
     @GetMapping("/listar")
-    public ResponseEntity<List<Material>> listarMateriais() {
-        List<Material> materiais = materialService.listarMateriais();
+    public ResponseEntity<List<MaterialDTO>> listarMateriais() {
+        List<MaterialDTO> materiais = materialService.listarMateriais();
         return ResponseEntity.ok(materiais);
     }
+
     
     // Read by ID
     @GetMapping("/{id}")

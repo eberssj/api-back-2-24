@@ -29,10 +29,15 @@ public class MaterialService {
         return material.orElse(null); // Retorna o material ou null se não for encontrado
     }
 
-    // Read All
     public List<MaterialDTO> listarMateriais() {
-        return materialRepository.listarMateriaisComProjeto();
+        List<MaterialDTO> materiais = materialRepository.listarMateriaisComProjeto();
+        materiais.forEach(material -> {
+            System.out.println("Material ID: " + material.getId());
+            System.out.println("Nome Projeto: " + material.getNomeProjeto());
+        });
+        return materiais;
     }
+
 
     // Update
     public Material atualizarMaterial(Long id, Material materialAtualizado) {
