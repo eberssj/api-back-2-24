@@ -38,6 +38,10 @@ public class ProjetoService {
         return projetoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Projeto não encontrado."));
     }
+    
+    public Projeto buscarProjetoPorReferencia(String referenciaProjeto) {
+        return projetoRepository.findByReferenciaProjeto(referenciaProjeto);
+    }
 
     public void cadastrarProjeto(ProjetoDto projetoDto, MultipartFile propostas, MultipartFile contratos, MultipartFile artigos) throws Exception {
         Projeto projeto = new Projeto();
