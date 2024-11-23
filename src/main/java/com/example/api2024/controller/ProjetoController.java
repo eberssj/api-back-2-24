@@ -3,6 +3,7 @@ package com.example.api2024.controller;
 import com.example.api2024.dto.ProjetoDto;
 import com.example.api2024.entity.Projeto;
 import com.example.api2024.service.ProjetoService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -72,6 +73,7 @@ public class ProjetoController {
             @RequestPart(value = "contratos", required = false) MultipartFile contratos,
             @RequestPart(value = "artigos", required = false) MultipartFile artigos) throws Exception {
         projetoService.cadastrarProjeto(projetoDto, propostas, contratos, artigos);
+
     }
 
     // Endpoint para editar um projeto existente
@@ -109,7 +111,7 @@ public class ProjetoController {
 
     // Endpoint para excluir um projeto
     @DeleteMapping("/excluir/{id}")
-    public void excluirProjeto(@PathVariable Long id) {
+    public void excluirProjeto(@PathVariable Long id) throws JsonProcessingException {
         projetoService.excluirProjeto(id);
     }
 }
